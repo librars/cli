@@ -8,6 +8,13 @@
 const chalk = require("chalk");
 
 /**
+ * Gets the HOME folder.
+ */
+export function getHomeFolder() {
+    return process.env.HOME;
+}
+
+/**
  * Logs an info.
  * 
  * @param {string} msg The message to log.

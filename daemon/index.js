@@ -16,9 +16,9 @@ const yargs = require("yargs");
 const utils = require("./utils");
 const consts = require("./consts");
 const commands = require("./commands");
+const handleCompile = require("./handlers/compile").handleCompile;
 
 const args = fetchArgs();
-
 const config = {
     // Server listening to this port
     port: args.port | 8080,
@@ -26,12 +26,16 @@ const config = {
     dir: ensureDir(args.dir) // this will make sure the directory exists
 };
 
+utils.log(`Server started. Listening on port ${config.port}...`);
+
 // Start the server
 http.createServer(function(req, res) {
     handleRequest(req, res);
 }).listen(config.port);
 
 function handleRequest(req, res) {
+    utils.log(`Request received: ${req.method}, ${req.url}`);
+
     res.write("Hello there");
     res.end();
 }
