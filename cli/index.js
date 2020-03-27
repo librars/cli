@@ -26,10 +26,14 @@ const config = {
     command: args.command,
     // Verbosity
     verbose: args.verbose | true,
+    // Server info
+    serverurl: args.serverurl,
+    serverport: args.serverport,
+    // Other args specific to commands
     noopts: args.noopts
 };
 
-const mach_serverinfo = fetchServerinfo();
+const mach_serverinfo = fetchServerinfo(config);
 const serverinfo = {
     url: mach_serverinfo.url,
     port: mach_serverinfo.port | consts.PORT
@@ -73,14 +77,17 @@ function fetchArgs() {
     return {
         command: argv._[0],
         verbose: argv.verbose | null,
-        noopts: argv._
+        serverurl: argv.serverurl | null,
+        serverport: argv.serverport | null,
+        noopts: argv._ | []
     };
 }
 
-function fetchServerinfo() {
+function fetchServerinfo(config) {
     const homeDir = utils.getHomeFolder();
     const dir = path.join(homeDir, consts.DIR_NAME);
 
+    // Start looking in the user dir
     if (fs.existsSync(dir)) {
         const configFilePath = path.join(dir, consts.CONFIG_FILE_NAME);
         if (fs.existsSync(configFilePath)) {
@@ -95,6 +102,15 @@ function fetchServerinfo() {
         }
     }
 
+    // If fail, attempt getting the info from args
+    if(config.serverurl && config.serverport) {
+        return {
+            url: config.serverurl,
+            port: config.serverport
+        };
+    }
+
+    // Fail
     return {
         url: null,
         port: null
