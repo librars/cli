@@ -7,6 +7,11 @@
 
 const http = require("http");
 
-export function compile() {
-    
+/**
+ * Compiles a book.
+ * 
+ * @param {string} path The path to the directory containing the book to compile. 
+ */
+export function compile(path) {
+
 }

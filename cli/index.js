@@ -15,7 +15,7 @@ const argv = require("yargs").argv;
 
 const utils = require("./utils");
 const commands = require("./commands");
-const compile = require("./compile");
+const compile = require("./compile").compile;
 
 let command = argv.command;
 
@@ -25,7 +25,14 @@ if (!command) {
 
 switch (command) {
     case commands.COMMAND_COMPILE:
-        utils.log("Executing command 'compile'...");
-        
+        handleCommandCompile();
         break;
+}
+
+function handleCommandCompile() {
+    utils.log("Executing command 'compile'...");
+
+    compile("");
+
+    utils.log("Command 'compile' completed.");
 }
