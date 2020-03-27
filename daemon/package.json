@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/librars/cli/issues"
   },
-  "homepage": "https://github.com/librars/cli#readme"
+  "homepage": "https://github.com/librars/cli#readme",
+  "dependencies": {
+    "http": "0.0.1-security"
+  }
 }
