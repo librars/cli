@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getHomeFolder = getHomeFolder;
+exports.getDataFolder = getDataFolder;
 exports.log = log;
 exports.warn = warn;
 exports.error = error;
@@ -18,8 +18,8 @@ exports.error = error;
 /**
  * Gets the HOME folder.
  */
-function getHomeFolder() {
-  return process.env.HOME;
+function getDataFolder() {
+  return process.env.APPDATA;
 }
 /**
  * Logs an info.

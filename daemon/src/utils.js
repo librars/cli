@@ -8,8 +8,8 @@
 /**
  * Gets the HOME folder.
  */
-export function getHomeFolder() {
-    return process.env.HOME;
+export function getDataFolder() {
+    return process.env.APPDATA;
 }
 
 /**

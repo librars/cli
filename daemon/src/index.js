@@ -52,23 +52,26 @@ function fetchArgs() {
 function ensureDir(proposedDir) {
     const ensure = (dir, shouldCreate) => {
         if (!fs.existsSync(dir) && shouldCreate) {
-            if (!fs.mkdirSync(dir)) {
+            fs.mkdirSync(dir);
+            if (!fs.existsSync(dir)) {
                 throw new Error(`Could not create dir ${dir}`);
             }
 
             return;
         }
 
-        throw new Error(`Could not find dir ${dir}`);
+        if (!fs.existsSync(dir)) {
+            throw new Error(`Could not find dir ${dir}`);
+        }
     };
-    const homeDir = utils.getHomeFolder();
-
+    
     if (proposedDir) {
         ensure(proposedDir, false);
         return path.normalize(proposedDir);
     }
 
+    const homeDir = utils.getDataFolder();
     const dir = path.join(homeDir, consts.DIR_NAME);
-    ensure(dir);
+    ensure(dir, true);
     return path.normalize(dir);
 }
