@@ -1,2 +1,2 @@
-# rstudio-inst
-RStudio extensions and packages to work with LibRArs.
+# cli
+Client RESTful library to interact with template server.
