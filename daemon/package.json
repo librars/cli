@@ -1,0 +1,22 @@
+{
+  "name": "librars-daemon",
+  "version": "1.0.0",
+  "description": "LibRArs daemon server to execute RESTful API.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/librars/cli.git"
+  },
+  "keywords": [
+    "nodejs"
+  ],
+  "author": "Andrea Tino",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/librars/cli/issues"
+  },
+  "homepage": "https://github.com/librars/cli#readme"
+}
