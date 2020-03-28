@@ -61,7 +61,7 @@ function handleCommandCompile() {
   compile(serverinfo, argPath).then(() => {
     utils.log("Completed command ".concat(commands.COMMAND_COMPILE));
   }).catch(e => {
-    utils.error("Command ".concat(commands.COMMAND_COMPILE, " encountered an error: ").concat(e));
+    utils.error("Command ".concat(commands.COMMAND_COMPILE, " encountered an error: '").concat(e, "'"));
   });
 }
 

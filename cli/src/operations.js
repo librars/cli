@@ -10,6 +10,7 @@ const path = require("path");
 const zip = require("archiver");
 
 const utils = require("./utils");
+const consts = require("./consts");
 
 /**
  * Generates a zip archive of a folder.
@@ -37,7 +38,7 @@ export async function zipFolder(src, dst, name) {
     archive.pipe(output);
 
     // Add directory into the archive
-    archive.directory(src, "stuff");
+    archive.directory(src, consts.ZIP_INNER_FOLDER_NAME);
 
     // Commit
     await archive.finalize();

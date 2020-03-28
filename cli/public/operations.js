@@ -22,6 +22,8 @@ var path = require("path");
 var zip = require("archiver");
 
 var utils = require("./utils");
+
+var consts = require("./consts");
 /**
  * Generates a zip archive of a folder.
  * 
@@ -53,7 +55,7 @@ function _zipFolder() {
 
     archive.pipe(output); // Add directory into the archive
 
-    archive.directory(src, "stuff"); // Commit
+    archive.directory(src, consts.ZIP_INNER_FOLDER_NAME); // Commit
 
     yield archive.finalize();
     return dstZipPath;

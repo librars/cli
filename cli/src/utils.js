@@ -119,10 +119,16 @@ export function ensureDataDir() {
 }
 
 function getCurrentTimestampAsId() {
+    const pad = (x) => x.length > 1 ? `0${x}` : `${x}`;
+
     const dateObj = new Date();
     const month = dateObj.getUTCMonth() + 1; // Months range in 0-11
     const day = dateObj.getUTCDate();
     const year = dateObj.getUTCFullYear();
 
-    return `${year}${month}${day}`;
+    const seconds = dateObj.getUTCSeconds();
+    const hours = dateObj.getUTCHours();
+    const minutes = dateObj.getUTCMinutes();
+
+    return `${year}${pad(month)}${pad(day)}T${pad(hours)}${pad(minutes)}${pad(seconds)}`;
 }

@@ -61,26 +61,55 @@ function _compile() {
     } // Generate the zip
 
 
-    var zipPath = yield createZip(dirpath); // Transmit the zip
+    var zipPath = yield createZip(dirpath);
+    utils.log("Zip created: ".concat(zipPath)); // Transmit the zip
 
     return new Promise((resolve, reject) => {
-      http.get(commands.buildCommandUrl(serverinfo), res => {
+      var options = {
+        hostname: serverinfo.url,
+        port: serverinfo.port,
+        path: '/upload',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': fs.statSync(zipPath).size
+        }
+      };
+      utils.log("Initiating transmission to: ".concat(commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE)));
+      var clientRequest = http.request(options, res => {
+        utils.log("STATUS: ".concat(res.statusCode));
+        utils.log("HEADERS: ".concat(JSON.stringify(res.headers)));
+        res.setEncoding('utf8');
         var data = "";
         res.on("data", chunk => {
           data += chunk;
         });
         res.on("end", () => {
-          utils.log(JSON.parse(data).explanation);
-          resolve("ok");
+          utils.log(JSON.parse(data).explanation); // Cleanup on finalize
+
+          if (cleanzip) {
+            cleanZip(zipPath);
+          }
+
+          resolve("ok"); // Resolve only when receiving the response
         });
-      }).on("error", err => {
-        // Cleanup
+      });
+      clientRequest.on("error", err => {
+        // Cleanup upon error
         if (cleanzip) {
           cleanZip(zipPath);
         }
 
         reject(err);
       });
+      var zipFileStream = fs.createReadStream(zipPath);
+      zipFileStream.on("data", data => {
+        clientRequest.write(data);
+      });
+      zipFileStream.on("end", () => {
+        clientRequest.end();
+      }); // zipFileStream.pipe(clientRequest);
+      // clientRequest.end();
     });
   });
   return _compile.apply(this, arguments);
@@ -106,6 +135,10 @@ function _createZip() {
 }
 
 function cleanZip(zipPath) {
+  if (!fs.existsSync(zipPath)) {
+    return;
+  }
+
   utils.deleteFile(zipPath);
   utils.log("Zip file ".concat(zipPath, " deleted."));
 }

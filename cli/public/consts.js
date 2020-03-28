@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PORT = exports.CONFIG_FILE_NAME = exports.DIR_NAME = void 0;
+exports.PORT = exports.ZIP_INNER_FOLDER_NAME = exports.CONFIG_FILE_NAME = exports.DIR_NAME = void 0;
 
 /**
  * consts.js
@@ -18,8 +18,12 @@ var DIR_NAME = "librars";
 
 exports.DIR_NAME = DIR_NAME;
 var CONFIG_FILE_NAME = "cli.config.json";
-/** Default port. */
+/** Name of the folder inside the archive that gets generated. */
 
 exports.CONFIG_FILE_NAME = CONFIG_FILE_NAME;
+var ZIP_INNER_FOLDER_NAME = "data";
+/** Default port. */
+
+exports.ZIP_INNER_FOLDER_NAME = ZIP_INNER_FOLDER_NAME;
 var PORT = 8080;
 exports.PORT = PORT;
