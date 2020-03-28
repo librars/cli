@@ -14,10 +14,6 @@
  */
 var yargs = require("yargs");
 
-var path = require("path");
-
-var fs = require("fs");
-
 var utils = require("./utils");
 
 var commands = require("./commands");
@@ -25,6 +21,8 @@ var commands = require("./commands");
 var compile = require("./compile").compile;
 
 var consts = require("./consts");
+
+var serverconfig = require("./serverconfig");
 
 var args = fetchArgs();
 var config = {
@@ -88,24 +86,12 @@ function fetchArgs() {
 }
 
 function fetchServerinfo(config) {
-  var homeDir = utils.getDataFolder();
-  var dir = path.join(homeDir, consts.DIR_NAME); // Start looking in the user data dir
+  // Start looking in the user data dir
+  var serverinfoFromDataDir = serverconfig.tryFetchServerInfoFromDataDir();
 
-  if (fs.existsSync(dir)) {
-    var configFilePath = path.join(dir, consts.CONFIG_FILE_NAME);
-
-    if (fs.existsSync(configFilePath)) {
-      var content = fs.readFileSync(configFilePath, {
-        encoding: "utf-8"
-      });
-
-      if (content) {
-        var json = JSON.parse(content);
-        return {
-          url: json.url,
-          port: parseInt(json.port)
-        };
-      }
+  if (serverinfoFromDataDir) {
+    if (serverconfig.checkServerInfo(serverinfoFromDataDir)) {
+      return serverinfoFromDataDir;
     }
   } // If fail, attempt getting the info from args
 

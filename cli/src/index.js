@@ -12,13 +12,12 @@
  */
 
 const yargs = require("yargs");
-const path = require("path");
-const fs = require("fs");
 
 const utils = require("./utils");
 const commands = require("./commands");
 const compile = require("./compile").compile;
 const consts = require("./consts");
+const serverconfig = require("./serverconfig");
 
 const args = fetchArgs();
 const config = {
@@ -85,21 +84,11 @@ function fetchArgs() {
 }
 
 function fetchServerinfo(config) {
-    const homeDir = utils.getDataFolder();
-    const dir = path.join(homeDir, consts.DIR_NAME);
-
     // Start looking in the user data dir
-    if (fs.existsSync(dir)) {
-        const configFilePath = path.join(dir, consts.CONFIG_FILE_NAME);
-        if (fs.existsSync(configFilePath)) {
-            const content = fs.readFileSync(configFilePath, { encoding: "utf-8" });
-            if (content) {
-                const json = JSON.parse(content);
-                return {
-                    url: json.url,
-                    port: parseInt(json.port)
-                };
-            }
+    const serverinfoFromDataDir = serverconfig.tryFetchServerInfoFromDataDir();
+    if (serverinfoFromDataDir) {
+        if (serverconfig.checkServerInfo(serverinfoFromDataDir)) {
+            return serverinfoFromDataDir;
         }
     }
 

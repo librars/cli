@@ -16,6 +16,8 @@ var http = require("http");
 var utils = require("./utils");
 
 var commands = require("./commands");
+
+var operations = require("./operations");
 /**
  * Compiles a book.
  * 
@@ -25,6 +27,19 @@ var commands = require("./commands");
 
 
 function compile(serverinfo, path) {
+  if (!path) {
+    throw new Error("Argument path canot be null or undefined");
+  } // Generate a zip
+
+
+  var dstDir = utils.getDataFolder();
+  var zipFileName = "zip-".concat(utils.generateId(true));
+  var zipPath = operations.zipFolder(path, dstDir, zipFileName);
+
+  if (dstDir !== zipPath) {
+    throw new Error("Created zip ".concat(zipPath, " was supposed to be in ").concat(dstDir, "."));
+  }
+
   http.get(commands.buildCommandUrl(serverinfo), res => {
     var data = "";
     res.on("data", chunk => {

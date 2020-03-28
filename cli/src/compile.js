@@ -9,6 +9,7 @@ const http = require("http");
 
 const utils = require("./utils");
 const commands = require("./commands");
+const operations = require("./operations");
 
 /**
  * Compiles a book.
@@ -17,6 +18,19 @@ const commands = require("./commands");
  * @param {string} path The path to the directory containing the book to compile. 
  */
 export function compile(serverinfo, path) {
+    if (!path) {
+        throw new Error("Argument path canot be null or undefined");
+    }
+
+    // Generate a zip
+    const dstDir = utils.getDataFolder();
+    const zipFileName = `zip-${utils.generateId(true)}`;
+    const zipPath = operations.zipFolder(path, dstDir, zipFileName);
+
+    if (dstDir !== zipPath) {
+        throw new Error(`Created zip ${zipPath} was supposed to be in ${dstDir}.`);
+    }
+
     http.get(commands.buildCommandUrl(serverinfo), (res) => {
         let data = "";
 

@@ -6,6 +6,9 @@
  */
 
 const chalk = require("chalk");
+const uuidv4 = require("uuid").v4;
+const fs = require("fs");
+const path = require('path');
 
 /**
  * Gets the HOME folder.
@@ -44,4 +47,46 @@ export function warn(msg) {
  */
 export function error(msg) {
     console.error(chalk.red(msg));
+}
+
+/**
+ * Generates a unique ID.
+ * 
+ * @param {boolean} withTimestamp A value indicating whether the id should include the timestamp.
+ * @returns {string} The unique ID.
+ */
+export function generateId(withTimestamp) {
+    withTimestamp = withTimestamp || false;
+
+    const id = uuidv4();
+
+    return withTimestamp ? `${getCurrentTimestampAsId()}_${id}` : `${id}`;
+}
+
+/**
+ * Gets a list of all files in a directory and its subdirectories.
+ * 
+ * @param {string} path The path to the directory.
+ * @returns {Array} An array of file paths relative to path.
+ */
+export function getAllFIlesInDirRecursively(path) {
+    // Depth first recursion
+    const readdirSync = (p, filelist = []) => {
+        if (fs.statSync(p).isDirectory()) {
+            fs.readdirSync(p).map(f => readdirSync(filelist[filelist.push(path.join(p, f)) - 1], filelist));
+        }
+            
+        return filelist;
+    }
+
+    return readdirSync(path);
+}
+
+function getCurrentTimestampAsId() {
+    const dateObj = new Date();
+    const month = dateObj.getUTCMonth() + 1; // Months range in 0-11
+    const day = dateObj.getUTCDate();
+    const year = dateObj.getUTCFullYear();
+
+    newdate = `${year}${month}${day}`;
 }

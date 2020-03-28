@@ -17,7 +17,7 @@ var DIR_NAME = "librars";
 /** Daemon config file name. */
 
 exports.DIR_NAME = DIR_NAME;
-var CONFIG_FILE_NAME = "daemon.config.json";
+var CONFIG_FILE_NAME = "cli.config.json";
 /** Default port. */
 
 exports.CONFIG_FILE_NAME = CONFIG_FILE_NAME;
