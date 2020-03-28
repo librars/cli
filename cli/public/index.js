@@ -45,21 +45,21 @@ var serverinfo = {
 };
 
 if (!serverinfo.url) {
-  throw new Error("No server URL");
+  throw new Error("The server URL could not be retrieved");
 }
 
 if (!config.command) {
   throw new Error("No command provided");
 }
 
-switch (command) {
+switch (config.command) {
   case commands.COMMAND_COMPILE:
     handleCommand(commands.COMMAND_COMPILE, handleCommandCompile);
     break;
 }
 
 function handleCommandCompile() {
-  argPath = config.noopts[1];
+  var argPath = config.noopts[1];
   compile(serverinfo, argPath);
 }
 
@@ -70,6 +70,7 @@ function handleCommand(name, handler) {
     handler();
   } catch (e) {
     utils.error("An error occurred: ".concat(e));
+    throw e; // Re-throw to make sure stack is displayed
   }
 
   utils.log("Command '".concat(name, "' completed."));
@@ -87,8 +88,8 @@ function fetchArgs() {
 }
 
 function fetchServerinfo(config) {
-  var homeDir = utils.getHomeFolder();
-  var dir = path.join(homeDir, consts.DIR_NAME); // Start looking in the user dir
+  var homeDir = utils.getDataFolder();
+  var dir = path.join(homeDir, consts.DIR_NAME); // Start looking in the user data dir
 
   if (fs.existsSync(dir)) {
     var configFilePath = path.join(dir, consts.CONFIG_FILE_NAME);
@@ -102,7 +103,7 @@ function fetchServerinfo(config) {
         var json = JSON.parse(content);
         return {
           url: json.url,
-          port: json.port
+          port: parseInt(json.port)
         };
       }
     }
@@ -112,7 +113,7 @@ function fetchServerinfo(config) {
   if (config.serverurl && config.serverport) {
     return {
       url: config.serverurl,
-      port: config.serverport
+      port: parseInt(config.serverport)
     };
   } // Fail
 

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getHomeFolder = getHomeFolder;
+exports.getDataFolder = getDataFolder;
 exports.log = log;
 exports.warn = warn;
 exports.error = error;
@@ -20,8 +20,14 @@ var chalk = require("chalk");
  */
 
 
-function getHomeFolder() {
-  return process.env.HOME;
+function getDataFolder() {
+  var dataDir = process.env.APPDATA;
+
+  if (!dataDir) {
+    throw new Error("Could not retrieve user data folder");
+  }
+
+  return dataDir;
 }
 /**
  * Logs an info.

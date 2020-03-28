@@ -27,5 +27,7 @@ export function compile(serverinfo, path) {
         res.on("end", () => {
             utils.log(JSON.parse(data).explanation);
         });
+    }).on("error", (err) => {
+        utils.error(`An error occurred while processing command 'compile': ${err}`);
     });
 }
