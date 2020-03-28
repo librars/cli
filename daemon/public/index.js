@@ -19,11 +19,9 @@ var yargs = require("yargs");
 
 var utils = require("./utils");
 
-var consts = require("./consts");
+var consts = require("./consts"); // const commands = require("./commands");
+// const handleCompile = require("./handlers/compile").handleCompile;
 
-var commands = require("./commands");
-
-var handleCompile = require("./handlers/compile").handleCompile;
 
 var args = fetchArgs();
 var config = {
