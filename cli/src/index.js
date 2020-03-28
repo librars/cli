@@ -33,10 +33,10 @@ const config = {
     noopts: args.noopts
 };
 
-const mach_serverinfo = fetchServerinfo(config);
+const machServerinfo = fetchServerinfo(config);
 const serverinfo = {
-    url: mach_serverinfo.url,
-    port: mach_serverinfo.port | consts.PORT
+    url: machServerinfo.url,
+    port: machServerinfo.port | consts.PORT
 };
 
 if (!serverinfo.url) {
@@ -54,9 +54,9 @@ switch (command) {
 }
 
 function handleCommandCompile() {
-    arg_path = config.noopts[1];
+    argPath = config.noopts[1];
 
-    compile(serverinfo, arg_path);
+    compile(serverinfo, argPath);
 }
 
 function handleCommand(name, handler) {
