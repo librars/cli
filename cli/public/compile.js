@@ -1,14 +1,21 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.compile = compile;
+
 /**
  * compile.js
  * Andrea Tino - 2020
  * 
  * Executes a compile command.
  */
-const http = require("http");
+var http = require("http");
 
-const utils = require("./utils");
+var utils = require("./utils");
 
-const commands = require("./commands");
+var commands = require("./commands");
 /**
  * Compiles a book.
  * 
@@ -17,9 +24,9 @@ const commands = require("./commands");
  */
 
 
-export function compile(serverinfo, path) {
+function compile(serverinfo, path) {
   http.get(commands.buildCommandUrl(serverinfo), res => {
-    let data = "";
+    var data = "";
     res.on("data", chunk => {
       data += chunk;
     });

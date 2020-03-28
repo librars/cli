@@ -1,16 +1,26 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getHomeFolder = getHomeFolder;
+exports.log = log;
+exports.warn = warn;
+exports.error = error;
+
 /**
  * utils.js
  * Andrea Tino - 2020
  * 
  * Utilities.
  */
-const chalk = require("chalk");
+var chalk = require("chalk");
 /**
  * Gets the HOME folder.
  */
 
 
-export function getHomeFolder() {
+function getHomeFolder() {
   return process.env.HOME;
 }
 /**
@@ -19,7 +29,8 @@ export function getHomeFolder() {
  * @param {string} msg The message to log.
  */
 
-export function log(msg) {
+
+function log(msg) {
   console.log(msg);
 }
 /**
@@ -28,7 +39,8 @@ export function log(msg) {
  * @param {string} msg The message to log.
  */
 
-export function warn(msg) {
+
+function warn(msg) {
   console.warn(chalk.yellow(msg));
 }
 /**
@@ -37,6 +49,7 @@ export function warn(msg) {
  * @param {string} msg The message to log.
  */
 
-export function error(msg) {
+
+function error(msg) {
   console.error(chalk.red(msg));
 }

@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * index.js
  * Andrea Tino - 2020
@@ -10,22 +12,22 @@
  * Available commands:
  * - compile
  */
-const yargs = require("yargs");
+var yargs = require("yargs");
 
-const path = require("path");
+var path = require("path");
 
-const fs = require("fs");
+var fs = require("fs");
 
-const utils = require("./utils");
+var utils = require("./utils");
 
-const commands = require("./commands");
+var commands = require("./commands");
 
-const compile = require("./compile").compile;
+var compile = require("./compile").compile;
 
-const consts = require("./consts");
+var consts = require("./consts");
 
-const args = fetchArgs();
-const config = {
+var args = fetchArgs();
+var config = {
   // Command to execute
   command: args.command,
   // Verbosity
@@ -36,8 +38,8 @@ const config = {
   // Other args specific to commands
   noopts: args.noopts
 };
-const machServerinfo = fetchServerinfo(config);
-const serverinfo = {
+var machServerinfo = fetchServerinfo(config);
+var serverinfo = {
   url: machServerinfo.url,
   port: machServerinfo.port | consts.PORT
 };
@@ -62,19 +64,19 @@ function handleCommandCompile() {
 }
 
 function handleCommand(name, handler) {
-  utils.log(`Executing command '${name}'...`);
+  utils.log("Executing command '".concat(name, "'..."));
 
   try {
     handler();
   } catch (e) {
-    utils.error(`An error occurred: ${e}`);
+    utils.error("An error occurred: ".concat(e));
   }
 
-  utils.log(`Command '${name}' completed.`);
+  utils.log("Command '".concat(name, "' completed."));
 }
 
 function fetchArgs() {
-  const argv = yargs.argv;
+  var argv = yargs.argv;
   return {
     command: argv._[0],
     verbose: argv.verbose | null,
@@ -85,19 +87,19 @@ function fetchArgs() {
 }
 
 function fetchServerinfo(config) {
-  const homeDir = utils.getHomeFolder();
-  const dir = path.join(homeDir, consts.DIR_NAME); // Start looking in the user dir
+  var homeDir = utils.getHomeFolder();
+  var dir = path.join(homeDir, consts.DIR_NAME); // Start looking in the user dir
 
   if (fs.existsSync(dir)) {
-    const configFilePath = path.join(dir, consts.CONFIG_FILE_NAME);
+    var configFilePath = path.join(dir, consts.CONFIG_FILE_NAME);
 
     if (fs.existsSync(configFilePath)) {
-      const content = fs.readFileSync(configFilePath, {
+      var content = fs.readFileSync(configFilePath, {
         encoding: "utf-8"
       });
 
       if (content) {
-        const json = JSON.parse(content);
+        var json = JSON.parse(content);
         return {
           url: json.url,
           port: json.port

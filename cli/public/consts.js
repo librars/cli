@@ -1,3 +1,10 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PORT = exports.CONFIG_FILE_NAME = exports.DIR_NAME = void 0;
+
 /**
  * consts.js
  * Andrea Tino - 2020
@@ -6,10 +13,13 @@
  */
 
 /** The name of the product directory. */
-export const DIR_NAME = "librars";
+var DIR_NAME = "librars";
 /** Daemon config file name. */
 
-export const CONFIG_FILE_NAME = "daemon.config.json";
+exports.DIR_NAME = DIR_NAME;
+var CONFIG_FILE_NAME = "daemon.config.json";
 /** Default port. */
 
-export const PORT = 8080;
+exports.CONFIG_FILE_NAME = CONFIG_FILE_NAME;
+var PORT = 8080;
+exports.PORT = PORT;

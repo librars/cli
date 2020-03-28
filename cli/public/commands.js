@@ -1,3 +1,11 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.buildCommandUrl = buildCommandUrl;
+exports.COMMAND_COMPILE = void 0;
+
 /**
  * commands.js
  * Andrea Tino - 2020
@@ -8,7 +16,7 @@
 /**
  * Compile.
  */
-export const COMMAND_COMPILE = "compile";
+var COMMAND_COMPILE = "compile";
 /**
  * Creates the proper URL to call a command.
  * 
@@ -16,6 +24,8 @@ export const COMMAND_COMPILE = "compile";
  * @param {*} command The command to build.
  */
 
-export function buildCommandUrl(serverinfo, command) {
-  return `${serverinfo.url}:${serverinfo.port}/${command}`;
+exports.COMMAND_COMPILE = COMMAND_COMPILE;
+
+function buildCommandUrl(serverinfo, command) {
+  return "".concat(serverinfo.url, ":").concat(serverinfo.port, "/").concat(command);
 }
