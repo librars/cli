@@ -15,8 +15,8 @@ const yargs = require("yargs");
 
 const utils = require("./utils");
 const consts = require("./consts");
-const commands = require("./commands");
-const handleCompile = require("./handlers/compile").handleCompile;
+// const commands = require("./commands");
+// const handleCompile = require("./handlers/compile").handleCompile;
 
 const args = fetchArgs();
 const config = {
