@@ -19,7 +19,7 @@ const utils = require("./utils");
  * @param {string} name The name to assign to the generated zip (not inclusive of extension).
  * @returns {string} The path pointing to the newly created zip.
  */
-export function zipFolder(src, dst, name) {
+export async function zipFolder(src, dst, name) {
     const dstZipPath = path.join(path.normalize(dst), `${name}.zip`);
     const output = fs.createWriteStream(dstZipPath); // Prepare destination
     const archive = zip("zip"); // Create a new zip archive
@@ -36,15 +36,11 @@ export function zipFolder(src, dst, name) {
     // Initiate zip creation
     archive.pipe(output);
 
-    // Get all the files to add to the archive
-    const files = utils.getAllFIlesInDirRecursively(src);
-    console.log(`Found ${files.length} files to zip.`);
+    // Add directory into the archive
+    archive.directory(src);
 
-    // Add files into the archive
-    for (let i = 0; i < files.length; i++) {
-        archive.append(fs.createReadStream(files[i])/*, { name: "file1.txt" }*/);
-    }
-    archive.finalize();
+    // Commit
+    await archive.finalize();
     
     return dstZipPath;
 }

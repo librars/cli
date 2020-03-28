@@ -5,6 +5,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.zipFolder = zipFolder;
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 /**
  * operations.js
  * Andrea Tino - 2020
@@ -28,31 +32,31 @@ var utils = require("./utils");
  */
 
 
-function zipFolder(src, dst, name) {
-  var dstZipPath = path.join(path.normalize(dst), "".concat(name, ".zip"));
-  var output = fs.createWriteStream(dstZipPath); // Prepare destination
+function zipFolder(_x, _x2, _x3) {
+  return _zipFolder.apply(this, arguments);
+}
 
-  var archive = zip("zip"); // Create a new zip archive
+function _zipFolder() {
+  _zipFolder = _asyncToGenerator(function* (src, dst, name) {
+    var dstZipPath = path.join(path.normalize(dst), "".concat(name, ".zip"));
+    var output = fs.createWriteStream(dstZipPath); // Prepare destination
 
-  output.on("close", () => {
-    utils.log("".concat(archive.pointer(), " total bytes written."));
+    var archive = zip("zip"); // Create a new zip archive
+
+    output.on("close", () => {
+      utils.log("".concat(archive.pointer(), " total bytes written."));
+    });
+    archive.on("error", err => {
+      utils.error("An error occurred while zipping ".concat(src, ": ").concat(err, "."));
+      throw err; // Display stack
+    }); // Initiate zip creation
+
+    archive.pipe(output); // Add directory into the archive
+
+    archive.directory(src); // Commit
+
+    yield archive.finalize();
+    return dstZipPath;
   });
-  archive.on("error", err => {
-    utils.error("An error occurred while zipping ".concat(src, ": ").concat(err, "."));
-    throw err; // Display stack
-  }); // Initiate zip creation
-
-  archive.pipe(output); // Get all the files to add to the archive
-
-  var files = utils.getAllFIlesInDirRecursively(src);
-  console.log("Found ".concat(files.length, " files to zip.")); // Add files into the archive
-
-  for (var i = 0; i < files.length; i++) {
-    archive.append(fs.createReadStream(files[i])
-    /*, { name: "file1.txt" }*/
-    );
-  }
-
-  archive.finalize();
-  return dstZipPath;
+  return _zipFolder.apply(this, arguments);
 }

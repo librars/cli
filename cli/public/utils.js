@@ -9,6 +9,7 @@ exports.warn = warn;
 exports.error = error;
 exports.generateId = generateId;
 exports.getAllFIlesInDirRecursively = getAllFIlesInDirRecursively;
+exports.ensureDataDir = ensureDataDir;
 
 /**
  * utils.js
@@ -23,6 +24,8 @@ var uuidv4 = require("uuid").v4;
 var fs = require("fs");
 
 var path = require('path');
+
+var consts = require("./consts");
 /**
  * Gets the HOME folder.
  */
@@ -83,12 +86,13 @@ function generateId(withTimestamp) {
 /**
  * Gets a list of all files in a directory and its subdirectories.
  * 
- * @param {string} path The path to the directory.
+ * @param {string} dirpath The path to the directory.
  * @returns {Array} An array of file paths relative to path.
  */
+// eslint-disable-next-line no-unused-vars
 
 
-function getAllFIlesInDirRecursively(path) {
+function getAllFIlesInDirRecursively(dirpath) {
   // Depth first recursion
   var readdirSync = function readdirSync(p) {
     var filelist = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
@@ -100,7 +104,28 @@ function getAllFIlesInDirRecursively(path) {
     return filelist;
   };
 
-  return readdirSync(path);
+  return readdirSync(dirpath);
+}
+/**
+ * Makes sure that the data folder is created.
+ * 
+ * @returns {string} The path to the data folder.
+ */
+
+
+function ensureDataDir() {
+  var dataDir = getDataFolder();
+  var dir = path.join(dataDir, consts.DIR_NAME);
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+
+    if (!fs.existsSync(dir)) {
+      throw new Error("Could not create dir ".concat(dir));
+    }
+  }
+
+  return path.normalize(dir);
 }
 
 function getCurrentTimestampAsId() {
@@ -109,5 +134,5 @@ function getCurrentTimestampAsId() {
 
   var day = dateObj.getUTCDate();
   var year = dateObj.getUTCFullYear();
-  newdate = "".concat(year).concat(month).concat(day);
+  return "".concat(year).concat(month).concat(day);
 }

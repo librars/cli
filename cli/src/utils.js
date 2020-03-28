@@ -10,6 +10,8 @@ const uuidv4 = require("uuid").v4;
 const fs = require("fs");
 const path = require('path');
 
+const consts = require("./consts");
+
 /**
  * Gets the HOME folder.
  */
@@ -66,10 +68,11 @@ export function generateId(withTimestamp) {
 /**
  * Gets a list of all files in a directory and its subdirectories.
  * 
- * @param {string} path The path to the directory.
+ * @param {string} dirpath The path to the directory.
  * @returns {Array} An array of file paths relative to path.
  */
-export function getAllFIlesInDirRecursively(path) {
+// eslint-disable-next-line no-unused-vars
+export function getAllFIlesInDirRecursively(dirpath) {
     // Depth first recursion
     const readdirSync = (p, filelist = []) => {
         if (fs.statSync(p).isDirectory()) {
@@ -79,7 +82,27 @@ export function getAllFIlesInDirRecursively(path) {
         return filelist;
     }
 
-    return readdirSync(path);
+    return readdirSync(dirpath);
+}
+
+/**
+ * Makes sure that the data folder is created.
+ * 
+ * @returns {string} The path to the data folder.
+ */
+export function ensureDataDir() {
+    const dataDir = getDataFolder();
+    const dir = path.join(dataDir, consts.DIR_NAME);
+
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+        
+        if (!fs.existsSync(dir)) {
+            throw new Error(`Could not create dir ${dir}`);
+        }
+    }
+
+    return path.normalize(dir);
 }
 
 function getCurrentTimestampAsId() {
@@ -88,5 +111,5 @@ function getCurrentTimestampAsId() {
     const day = dateObj.getUTCDate();
     const year = dateObj.getUTCFullYear();
 
-    newdate = `${year}${month}${day}`;
+    return `${year}${month}${day}`;
 }

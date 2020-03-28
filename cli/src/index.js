@@ -55,20 +55,22 @@ switch (config.command) {
 function handleCommandCompile() {
     const argPath = config.noopts[1];
 
-    compile(serverinfo, argPath);
+    compile(serverinfo, argPath).then(() => {
+        utils.log("Completed compile");
+    }).catch((e) => {
+        utils.error("Command compile encountered error");
+    });
 }
 
 function handleCommand(name, handler) {
     utils.log(`Executing command '${name}'...`);
 
     try {
-        handler();
+        handler(); // Handling fujnction is async
     } catch (e) {
         utils.error(`An error occurred: ${e}`);
         throw e; // Re-throw to make sure stack is displayed
     }
-
-    utils.log(`Command '${name}' completed.`);
 }
 
 function fetchArgs() {
@@ -76,10 +78,10 @@ function fetchArgs() {
 
     return {
         command: argv._[0],
-        verbose: argv.verbose | null,
-        serverurl: argv.serverurl | null,
-        serverport: argv.serverport | null,
-        noopts: argv._ | []
+        verbose: argv.verbose || null,
+        serverurl: argv.serverurl || null,
+        serverport: argv.serverport || null,
+        noopts: argv._ || []
     };
 }
 

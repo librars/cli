@@ -58,7 +58,9 @@ switch (config.command) {
 
 function handleCommandCompile() {
   var argPath = config.noopts[1];
-  compile(serverinfo, argPath);
+  compile(serverinfo, argPath).then(() => {
+    utils.log("Completed compile");
+  });
 }
 
 function handleCommand(name, handler) {
@@ -78,10 +80,10 @@ function fetchArgs() {
   var argv = yargs.argv;
   return {
     command: argv._[0],
-    verbose: argv.verbose | null,
-    serverurl: argv.serverurl | null,
-    serverport: argv.serverport | null,
-    noopts: argv._ | []
+    verbose: argv.verbose || null,
+    serverurl: argv.serverurl || null,
+    serverport: argv.serverport || null,
+    noopts: argv._ || []
   };
 }
 
