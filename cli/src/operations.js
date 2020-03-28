@@ -37,7 +37,7 @@ export async function zipFolder(src, dst, name) {
     archive.pipe(output);
 
     // Add directory into the archive
-    archive.directory(src);
+    archive.directory(src, "stuff");
 
     // Commit
     await archive.finalize();

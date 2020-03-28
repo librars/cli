@@ -30,7 +30,9 @@ var operations = require("./operations");
  * Compiles a book.
  * 
  * @param {any} serverinfo The server info object.
- * @param {string} dirpath The path to the directory containing the book to compile. 
+ * @param {string} dirpath The path to the directory containing the book to compile.
+ * @param {boolean} cleanzip A value indicating whether to clean the zip after the transmission completes.
+ * @returns {Promise} a promise.
  */
 
 
@@ -40,6 +42,8 @@ function compile(_x, _x2) {
 
 function _compile() {
   _compile = _asyncToGenerator(function* (serverinfo, dirpath) {
+    var cleanzip = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+
     if (!serverinfo) {
       throw new Error("Argument serverinfo canot be null or undefined");
     }
@@ -54,9 +58,40 @@ function _compile() {
 
     if (!fs.statSync(dirpath).isDirectory) {
       throw new Error("Path ".concat(dirpath, " does not point to a directory"));
-    } // Generate a zip
+    } // Generate the zip
 
 
+    var zipPath = yield createZip(dirpath); // Transmit the zip
+
+    return new Promise((resolve, reject) => {
+      http.get(commands.buildCommandUrl(serverinfo), res => {
+        var data = "";
+        res.on("data", chunk => {
+          data += chunk;
+        });
+        res.on("end", () => {
+          utils.log(JSON.parse(data).explanation);
+          resolve("ok");
+        });
+      }).on("error", err => {
+        // Cleanup
+        if (cleanzip) {
+          cleanZip(zipPath);
+        }
+
+        reject(err);
+      });
+    });
+  });
+  return _compile.apply(this, arguments);
+}
+
+function createZip(_x3) {
+  return _createZip.apply(this, arguments);
+}
+
+function _createZip() {
+  _createZip = _asyncToGenerator(function* (dirpath) {
     var dstDir = utils.ensureDataDir();
     var zipFileName = "zip-".concat(utils.generateId(true));
     var zipPath = yield operations.zipFolder(dirpath, dstDir, zipFileName);
@@ -64,18 +99,13 @@ function _compile() {
     if (path.join(dstDir, "".concat(zipFileName, ".zip")) !== zipPath) {
       throw new Error("Created zip ".concat(zipPath, " was supposed to be in ").concat(dstDir, "."));
     }
-    /*http.get(commands.buildCommandUrl(serverinfo), (res) => {
-        let data = "";
-          res.on("data", (chunk) => {
-            data += chunk;
-        });
-          res.on("end", () => {
-            utils.log(JSON.parse(data).explanation);
-        });
-    }).on("error", (err) => {
-        utils.error(`An error occurred while processing command 'compile': ${err}`);
-    });*/
 
+    return zipPath;
   });
-  return _compile.apply(this, arguments);
+  return _createZip.apply(this, arguments);
+}
+
+function cleanZip(zipPath) {
+  utils.deleteFile(zipPath);
+  utils.log("Zip file ".concat(zipPath, " deleted."));
 }

@@ -56,9 +56,9 @@ function handleCommandCompile() {
     const argPath = config.noopts[1];
 
     compile(serverinfo, argPath).then(() => {
-        utils.log("Completed compile");
+        utils.log(`Completed command ${commands.COMMAND_COMPILE}`);
     }).catch((e) => {
-        utils.error("Command compile encountered error");
+        utils.error(`Command ${commands.COMMAND_COMPILE} encountered an error: ${e}`);
     });
 }
 

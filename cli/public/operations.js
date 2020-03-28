@@ -53,7 +53,7 @@ function _zipFolder() {
 
     archive.pipe(output); // Add directory into the archive
 
-    archive.directory(src); // Commit
+    archive.directory(src, "stuff"); // Commit
 
     yield archive.finalize();
     return dstZipPath;

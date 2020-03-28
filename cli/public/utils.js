@@ -9,6 +9,7 @@ exports.warn = warn;
 exports.error = error;
 exports.generateId = generateId;
 exports.getAllFIlesInDirRecursively = getAllFIlesInDirRecursively;
+exports.deleteFile = deleteFile;
 exports.ensureDataDir = ensureDataDir;
 
 /**
@@ -105,6 +106,20 @@ function getAllFIlesInDirRecursively(dirpath) {
   };
 
   return readdirSync(dirpath);
+}
+/**
+ * Safely deletes a file.
+ * 
+ * @param {string} filepath Path to the file to delete.
+ */
+
+
+function deleteFile(filepath) {
+  if (!fs.existsSync(filepath) || !fs.statSync(filepath).isFile()) {
+    return;
+  }
+
+  fs.unlinkSync(filepath);
 }
 /**
  * Makes sure that the data folder is created.

@@ -59,7 +59,9 @@ switch (config.command) {
 function handleCommandCompile() {
   var argPath = config.noopts[1];
   compile(serverinfo, argPath).then(() => {
-    utils.log("Completed compile");
+    utils.log("Completed command ".concat(commands.COMMAND_COMPILE));
+  }).catch(e => {
+    utils.error("Command ".concat(commands.COMMAND_COMPILE, " encountered an error: ").concat(e));
   });
 }
 
@@ -67,13 +69,11 @@ function handleCommand(name, handler) {
   utils.log("Executing command '".concat(name, "'..."));
 
   try {
-    handler();
+    handler(); // Handling fujnction is async
   } catch (e) {
     utils.error("An error occurred: ".concat(e));
     throw e; // Re-throw to make sure stack is displayed
   }
-
-  utils.log("Command '".concat(name, "' completed."));
 }
 
 function fetchArgs() {

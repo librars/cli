@@ -80,9 +80,22 @@ export function getAllFIlesInDirRecursively(dirpath) {
         }
             
         return filelist;
-    }
+    };
 
     return readdirSync(dirpath);
+}
+
+/**
+ * Safely deletes a file.
+ * 
+ * @param {string} filepath Path to the file to delete.
+ */
+export function deleteFile(filepath) {
+    if (!fs.existsSync(filepath) || !fs.statSync(filepath).isFile()) {
+        return;
+    }
+
+    fs.unlinkSync(filepath);
 }
 
 /**
@@ -96,7 +109,7 @@ export function ensureDataDir() {
 
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
-        
+
         if (!fs.existsSync(dir)) {
             throw new Error(`Could not create dir ${dir}`);
         }

@@ -17,9 +17,11 @@ const operations = require("./operations");
  * Compiles a book.
  * 
  * @param {any} serverinfo The server info object.
- * @param {string} dirpath The path to the directory containing the book to compile. 
+ * @param {string} dirpath The path to the directory containing the book to compile.
+ * @param {boolean} cleanzip A value indicating whether to clean the zip after the transmission completes.
+ * @returns {Promise} a promise.
  */
-export async function compile(serverinfo, dirpath) {
+export async function compile(serverinfo, dirpath, cleanzip = true) {
     if (!serverinfo) {
         throw new Error("Argument serverinfo canot be null or undefined");
     }
@@ -34,7 +36,34 @@ export async function compile(serverinfo, dirpath) {
         throw new Error(`Path ${dirpath} does not point to a directory`);
     }
 
-    // Generate a zip
+    // Generate the zip
+    const zipPath = await createZip(dirpath);
+
+    // Transmit the zip
+    return new Promise((resolve, reject) => {
+        http.get(commands.buildCommandUrl(serverinfo), (res) => {
+            let data = "";
+    
+            res.on("data", (chunk) => {
+                data += chunk;
+            });
+    
+            res.on("end", () => {
+                utils.log(JSON.parse(data).explanation);
+                resolve("ok");
+            });
+        }).on("error", (err) => {
+            // Cleanup
+            if (cleanzip) {
+                cleanZip(zipPath);
+            }
+
+            reject(err);
+        });
+    });
+}
+
+async function createZip(dirpath) {
     const dstDir = utils.ensureDataDir();
     const zipFileName = `zip-${utils.generateId(true)}`;
     const zipPath = await operations.zipFolder(dirpath, dstDir, zipFileName);
@@ -43,17 +72,10 @@ export async function compile(serverinfo, dirpath) {
         throw new Error(`Created zip ${zipPath} was supposed to be in ${dstDir}.`);
     }
 
-    /*http.get(commands.buildCommandUrl(serverinfo), (res) => {
-        let data = "";
+    return zipPath;
+}
 
-        res.on("data", (chunk) => {
-            data += chunk;
-        });
-
-        res.on("end", () => {
-            utils.log(JSON.parse(data).explanation);
-        });
-    }).on("error", (err) => {
-        utils.error(`An error occurred while processing command 'compile': ${err}`);
-    });*/
+function cleanZip(zipPath) {
+    utils.deleteFile(zipPath);
+    utils.log(`Zip file ${zipPath} deleted.`);
 }
