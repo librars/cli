@@ -16,10 +16,16 @@ exports.error = error;
  */
 
 /**
- * Gets the HOME folder.
+ * Gets the Data folder.
  */
 function getDataFolder() {
-  return process.env.APPDATA;
+  var dataDir = process.env.APPDATA;
+
+  if (!dataDir) {
+    throw new Error("Could not retrieve user data folder");
+  }
+
+  return dataDir;
 }
 /**
  * Logs an info.

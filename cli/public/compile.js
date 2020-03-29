@@ -70,8 +70,10 @@ function _compile() {
         port: serverinfo.port,
         path: "/".concat(commands.COMMAND_COMPILE),
         method: "POST",
+        protocol: "http:",
+        encoding: null,
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/zip",
           "Content-Length": fs.statSync(zipPath).size
         }
       };
@@ -105,11 +107,13 @@ function _compile() {
       });
       var zipFileStream = fs.createReadStream(zipPath);
       zipFileStream.on("data", data => {
+        // As soon as data is read from the zip file, write it to the socket
         clientRequest.write(data);
       });
       zipFileStream.on("end", () => {
+        // Once the zip file is fully read, close the client request
         clientRequest.end(() => {
-          // Executed once the stream has been sent
+          // Once the stream has been sent
           utils.log("Data transmitted to ".concat(commandUrl));
           utils.log("Awaiting response...");
         });

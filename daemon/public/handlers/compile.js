@@ -11,9 +11,15 @@ exports.handleCompile = handleCompile;
  * 
  * Handles a compile request.
  */
+var fs = require("fs");
+
+var path = require("path");
+
 var utils = require("../utils");
 
 var commands = require("../commands");
+
+var consts = require("../consts");
 /**
  * Handles a compile request.
  * 
@@ -31,11 +37,32 @@ function handleCompile(req, res) {
     return;
   }
 
+  var dstDir = path.join(path.normalize(utils.getDataFolder()), consts.DIR_NAME);
+  var dstPath = path.join(dstDir, "rcv-".concat(Math.ceil(Math.random() * 100000), ".zip"));
+  var dstStream = fs.createWriteStream(dstPath);
   req.on("data", data => {
     utils.log("Data received: ".concat(data));
+    dstStream.write(data, error => {
+      if (error) {
+        utils.error("Error while trying to save zip into ".concat(dstPath, ": ").concat(error));
+        return;
+      }
+
+      utils.log("Data written into ".concat(dstPath));
+    });
   });
-  res.write("{'body': 'ok'}");
-  res.end();
+  req.on("end", () => {
+    utils.log("Request has been successfully received");
+    dstStream.close();
+    res.write("{'body': 'ok'}");
+    res.end();
+  });
+  req.on("error", err => {
+    utils.error("An error occurred while processing the request: ".concat(err));
+    dstStream.close();
+    res.statusCode = 500;
+    res.end();
+  });
 }
 
 function checkRequest(req) {
