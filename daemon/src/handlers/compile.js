@@ -28,42 +28,23 @@ export function handleCompile(req, res) {
         return;
     }
 
-    let buffer = [];
+    let buffer = "";
 
     const dstDir = path.join(path.normalize(utils.getDataFolder()), consts.DIR_NAME);
     const dstPath = path.join(dstDir, `rcv-${Math.ceil(Math.random()*100000)}.zip`);
-    const dstStream = fs.createWriteStream(dstPath);
-
-    req.pipe(dstStream);
 
     req.on("data", (data) => {
         utils.log(`Data received: ${data}`);
 
-        buffer.push(data);
-
-        /* dstStream.write(data, (error) => {
-            if (error) {
-                utils.error(`Error while trying to save zip into ${dstPath}: ${error}`);
-                return;
-            }
-
-            utils.log(`Data written into ${dstPath}`);
-        }); */
+        buffer += data;
     });
 
     req.on("end", () => {
         utils.log("Request has been successfully received");
         utils.log(`Data buffer (len: ${buffer.length}): ${buffer}`);
 
-        /* dstStream.write(Buffer.concat(buffer), "binary", (error) => {
-            if (error) {
-                utils.error(`Error while trying to save zip into ${dstPath}: ${error}`);
-                return;
-            }
-
-            utils.log(`Data written into ${dstPath}`);
-        }); */
-        dstStream.close();
+        fs.writeFileSync(dstPath, new Buffer(buffer, "base64"), "base64");
+        utils.log(`Zip written into: ${dstPath}`);
 
         res.write("{'body': 'ok'}");
         res.end();
@@ -71,8 +52,6 @@ export function handleCompile(req, res) {
 
     req.on("error", (err) => {
         utils.error(`An error occurred while processing the request: ${err}`);
-
-        dstStream.close();
 
         res.statusCode = 500;
         res.end();

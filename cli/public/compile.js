@@ -62,7 +62,12 @@ function _compile() {
 
 
     var zipPath = yield createZip(dirpath);
-    utils.log("Zip created: ".concat(zipPath)); // Transmit the zip
+    utils.log("Zip created: ".concat(zipPath)); // Base64 encode
+
+    var buffer = fs.readFileSync(zipPath);
+    var base64data = buffer.toString("base64");
+    utils.log("Zip base64 computed (len: ".concat(base64data.length, "): ").concat(base64data)); // fs.writeFileSync("C:/Users/antino/AppData/Roaming/librars/shit.zip", new Buffer(base64data, "base64"), "base64");
+    // Transmit the zip
 
     return new Promise((resolve, reject) => {
       var options = {
@@ -73,16 +78,16 @@ function _compile() {
         protocol: "http:",
         encoding: null,
         headers: {
-          "Content-Type": "application/octet-stream",
-          "Content-Length": fs.statSync(zipPath).size
+          "Content-Type": "text/plain" // "Content-Length": fs.statSync(zipPath).size
+
         }
       };
       var commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
       utils.log("Initiating transmission to: ".concat(commandUrl));
       var clientRequest = http.request(options, res => {
         utils.log("STATUS: ".concat(res.statusCode));
-        utils.log("HEADERS: ".concat(JSON.stringify(res.headers)));
-        res.setEncoding('utf8');
+        utils.log("HEADERS: ".concat(JSON.stringify(res.headers))); // res.setEncoding('utf8');
+
         var data = "";
         res.on("data", chunk => {
           data += chunk;
@@ -104,17 +109,16 @@ function _compile() {
         }
 
         reject(err);
-      });
-      var zipFileStream = fs.createReadStream(zipPath);
-      zipFileStream.on("data", data => {
-        // As soon as data is read from the zip file, write it to the socket
-        clientRequest.write(data, "binary");
-      });
-      zipFileStream.on("end", () => {
-        // Once the zip file is fully read, close the client request
+      }); // Send request
+
+      clientRequest.write(base64data, "utf-8", err => {
+        if (err) {
+          utils.error("Error while sending request: ".concat(err));
+          return;
+        }
+
         clientRequest.end(() => {
-          // Once the stream has been sent
-          utils.log("Data transmitted to ".concat(commandUrl));
+          utils.log("Request tx completed. Data transmitted to ".concat(commandUrl));
           utils.log("Awaiting response...");
         });
       });

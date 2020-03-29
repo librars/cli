@@ -58,7 +58,7 @@ switch (config.command) {
 
 function handleCommandCompile() {
   var argPath = config.noopts[1];
-  compile(serverinfo, argPath).then(() => {
+  compile(serverinfo, argPath, true).then(() => {
     utils.log("Completed command ".concat(commands.COMMAND_COMPILE));
   }).catch(e => {
     utils.error("Command ".concat(commands.COMMAND_COMPILE, " encountered an error: '").concat(e, "'"));

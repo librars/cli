@@ -38,8 +38,13 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
 
     // Generate the zip
     const zipPath = await createZip(dirpath);
-
     utils.log(`Zip created: ${zipPath}`);
+
+    // Base64 encode
+    const buffer = fs.readFileSync(zipPath);
+    const base64data = buffer.toString("base64");
+    utils.log(`Zip base64 computed (len: ${base64data.length}): ${base64data}`);
+    // fs.writeFileSync("C:/Users/antino/AppData/Roaming/librars/shit.zip", new Buffer(base64data, "base64"), "base64");
 
     // Transmit the zip
     return new Promise((resolve, reject) => {
@@ -51,8 +56,8 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
             protocol: "http:",
             encoding: null,
             headers: {
-                "Content-Type": "application/octet-stream",
-                "Content-Length": fs.statSync(zipPath).size
+                "Content-Type": "text/plain",
+                // "Content-Length": fs.statSync(zipPath).size
             }
         };
 
@@ -91,18 +96,15 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
             reject(err);
         });
 
-        const zipFileStream = fs.createReadStream(zipPath);
+        // Send request
+        clientRequest.write(base64data, "utf-8", (err) => {
+            if (err) {
+                utils.error(`Error while sending request: ${err}`);
+                return;
+            }
 
-        zipFileStream.on("data", data => {
-            // As soon as data is read from the zip file, write it to the socket
-            clientRequest.write(data, "binary");
-        });
-
-        zipFileStream.on("end", () => {
-            // Once the zip file is fully read, close the client request
             clientRequest.end(() => {
-                // Once the stream has been sent
-                utils.log(`Data transmitted to ${commandUrl}`);
+                utils.log(`Request tx completed. Data transmitted to ${commandUrl}`);
                 utils.log("Awaiting response...");
             });
         });
