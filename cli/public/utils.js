@@ -144,10 +144,15 @@ function ensureDataDir() {
 }
 
 function getCurrentTimestampAsId() {
+  var pad = x => x.length < 1 ? "0".concat(x) : "".concat(x);
+
   var dateObj = new Date();
   var month = dateObj.getUTCMonth() + 1; // Months range in 0-11
 
   var day = dateObj.getUTCDate();
   var year = dateObj.getUTCFullYear();
-  return "".concat(year).concat(month).concat(day);
+  var seconds = dateObj.getUTCSeconds();
+  var hours = dateObj.getUTCHours();
+  var minutes = dateObj.getUTCMinutes();
+  return "".concat(year).concat(pad(month)).concat(pad(day), "T").concat(pad(hours)).concat(pad(minutes)).concat(pad(seconds));
 }

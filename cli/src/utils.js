@@ -119,7 +119,7 @@ export function ensureDataDir() {
 }
 
 function getCurrentTimestampAsId() {
-    const pad = (x) => x.length > 1 ? `0${x}` : `${x}`;
+    const pad = (x) => x.length < 1 ? `0${x}` : `${x}`;
 
     const dateObj = new Date();
     const month = dateObj.getUTCMonth() + 1; // Months range in 0-11

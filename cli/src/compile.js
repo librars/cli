@@ -46,15 +46,16 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
         const options = {
             hostname: serverinfo.url,
             port: serverinfo.port,
-            path: '/upload',
-            method: 'POST',
+            path: `/${commands.COMMAND_COMPILE}`,
+            method: "POST",
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Content-Length': fs.statSync(zipPath).size
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Length": fs.statSync(zipPath).size
             }
         };
 
-        utils.log(`Initiating transmission to: ${commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE)}`);
+        const commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
+        utils.log(`Initiating transmission to: ${commandUrl}`);
 
         const clientRequest = http.request(options, res => {
             utils.log(`STATUS: ${res.statusCode}`);
@@ -68,7 +69,7 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
             });
 
             res.on("end", () => {
-                utils.log(JSON.parse(data).explanation);
+                utils.log(data);
 
                 // Cleanup on finalize
                 if (cleanzip) {
@@ -95,7 +96,10 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
         });
 
         zipFileStream.on("end", () => {
-            clientRequest.end();
+            clientRequest.end(() => { // Executed once the stream has been sent
+                utils.log(`Data transmitted to ${commandUrl}`);
+                utils.log("Awaiting response...");
+            });
         });
     });
 }

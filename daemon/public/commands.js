@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.COMMAND_COMPILE = void 0;
+exports.COMMAND_UNKNOWN = exports.COMMAND_COMPILE = void 0;
 
 /**
  * commands.js
@@ -12,8 +12,10 @@ exports.COMMAND_COMPILE = void 0;
  * List of available commands.
  */
 
-/**
- * Compile.
- */
+/** Compile. */
 var COMMAND_COMPILE = "compile";
+/** Unknown command. */
+
 exports.COMMAND_COMPILE = COMMAND_COMPILE;
+var COMMAND_UNKNOWN = "unknown";
+exports.COMMAND_UNKNOWN = COMMAND_UNKNOWN;

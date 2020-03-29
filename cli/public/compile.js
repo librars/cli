@@ -68,14 +68,15 @@ function _compile() {
       var options = {
         hostname: serverinfo.url,
         port: serverinfo.port,
-        path: '/upload',
-        method: 'POST',
+        path: "/".concat(commands.COMMAND_COMPILE),
+        method: "POST",
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Content-Length': fs.statSync(zipPath).size
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Length": fs.statSync(zipPath).size
         }
       };
-      utils.log("Initiating transmission to: ".concat(commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE)));
+      var commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
+      utils.log("Initiating transmission to: ".concat(commandUrl));
       var clientRequest = http.request(options, res => {
         utils.log("STATUS: ".concat(res.statusCode));
         utils.log("HEADERS: ".concat(JSON.stringify(res.headers)));
@@ -85,7 +86,7 @@ function _compile() {
           data += chunk;
         });
         res.on("end", () => {
-          utils.log(JSON.parse(data).explanation); // Cleanup on finalize
+          utils.log(data); // Cleanup on finalize
 
           if (cleanzip) {
             cleanZip(zipPath);
@@ -107,9 +108,12 @@ function _compile() {
         clientRequest.write(data);
       });
       zipFileStream.on("end", () => {
-        clientRequest.end();
-      }); // zipFileStream.pipe(clientRequest);
-      // clientRequest.end();
+        clientRequest.end(() => {
+          // Executed once the stream has been sent
+          utils.log("Data transmitted to ".concat(commandUrl));
+          utils.log("Awaiting response...");
+        });
+      });
     });
   });
   return _compile.apply(this, arguments);

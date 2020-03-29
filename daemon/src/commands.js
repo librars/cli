@@ -5,7 +5,8 @@
  * List of available commands.
  */
 
-/**
- * Compile.
- */
+/** Compile. */
 export const COMMAND_COMPILE = "compile";
+
+/** Unknown command. */
+export const COMMAND_UNKNOWN = "unknown";

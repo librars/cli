@@ -15,8 +15,11 @@ const yargs = require("yargs");
 
 const utils = require("./utils");
 const consts = require("./consts");
-// const commands = require("./commands");
-// const handleCompile = require("./handlers/compile").handleCompile;
+const commands = require("./commands");
+const commandHandlers = {
+    compile: require("./handlers/compile").handleCompile,
+    unknown: require("./handlers/unknown").handleUnknown
+};
 
 const args = fetchArgs();
 const config = {
@@ -29,15 +32,21 @@ const config = {
 utils.log(`Server started. Listening on port ${config.port}...`);
 
 // Start the server
-http.createServer(function(req, res) {
+http.createServer((req, res) => {
     handleRequest(req, res);
 }).listen(config.port);
 
 function handleRequest(req, res) {
     utils.log(`Request received: ${req.method}, ${req.url}`);
 
-    res.write("Hello there");
-    res.end();
+    switch (req.url) {
+        case `/${commands.COMMAND_COMPILE}`:
+            commandHandlers.compile(req, res);
+            break;
+
+        default:
+            commandHandlers.unknown(req, res);
+    }
 }
 
 function fetchArgs() {
