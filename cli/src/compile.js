@@ -51,7 +51,7 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
             protocol: "http:",
             encoding: null,
             headers: {
-                "Content-Type": "application/zip",
+                "Content-Type": "application/octet-stream",
                 "Content-Length": fs.statSync(zipPath).size
             }
         };
@@ -62,7 +62,7 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
         const clientRequest = http.request(options, res => {
             utils.log(`STATUS: ${res.statusCode}`);
             utils.log(`HEADERS: ${JSON.stringify(res.headers)}`);
-            res.setEncoding('utf8');
+            // res.setEncoding('utf8');
 
             let data = "";
 
@@ -95,7 +95,7 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
 
         zipFileStream.on("data", data => {
             // As soon as data is read from the zip file, write it to the socket
-            clientRequest.write(data);
+            clientRequest.write(data, "binary");
         });
 
         zipFileStream.on("end", () => {

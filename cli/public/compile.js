@@ -73,7 +73,7 @@ function _compile() {
         protocol: "http:",
         encoding: null,
         headers: {
-          "Content-Type": "application/zip",
+          "Content-Type": "application/octet-stream",
           "Content-Length": fs.statSync(zipPath).size
         }
       };
@@ -108,7 +108,7 @@ function _compile() {
       var zipFileStream = fs.createReadStream(zipPath);
       zipFileStream.on("data", data => {
         // As soon as data is read from the zip file, write it to the socket
-        clientRequest.write(data);
+        clientRequest.write(data, "binary");
       });
       zipFileStream.on("end", () => {
         // Once the zip file is fully read, close the client request

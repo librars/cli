@@ -37,22 +37,33 @@ function handleCompile(req, res) {
     return;
   }
 
+  var buffer = [];
   var dstDir = path.join(path.normalize(utils.getDataFolder()), consts.DIR_NAME);
   var dstPath = path.join(dstDir, "rcv-".concat(Math.ceil(Math.random() * 100000), ".zip"));
   var dstStream = fs.createWriteStream(dstPath);
+  req.pipe(dstStream);
   req.on("data", data => {
     utils.log("Data received: ".concat(data));
-    dstStream.write(data, error => {
-      if (error) {
-        utils.error("Error while trying to save zip into ".concat(dstPath, ": ").concat(error));
-        return;
-      }
-
-      utils.log("Data written into ".concat(dstPath));
-    });
+    buffer.push(data);
+    /* dstStream.write(data, (error) => {
+        if (error) {
+            utils.error(`Error while trying to save zip into ${dstPath}: ${error}`);
+            return;
+        }
+          utils.log(`Data written into ${dstPath}`);
+    }); */
   });
   req.on("end", () => {
     utils.log("Request has been successfully received");
+    utils.log("Data buffer (len: ".concat(buffer.length, "): ").concat(buffer));
+    /* dstStream.write(Buffer.concat(buffer), "binary", (error) => {
+        if (error) {
+            utils.error(`Error while trying to save zip into ${dstPath}: ${error}`);
+            return;
+        }
+          utils.log(`Data written into ${dstPath}`);
+    }); */
+
     dstStream.close();
     res.write("{'body': 'ok'}");
     res.end();
