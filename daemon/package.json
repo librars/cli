@@ -1,5 +1,5 @@
 {
-  "name": "librars-daemon",
+  "name": "@librars/daemon",
   "version": "1.0.0",
   "description": "LibRArs daemon server to execute RESTful API.",
   "main": "index.js",
