@@ -11,7 +11,7 @@ exports.handleNotCompatible = handleNotCompatible;
  * 
  * Handles a non-compatible request.
  */
-var utils = require("../utils");
+var common = require("@librars/cli-common");
 
 var commands = require("../commands");
 /**
@@ -23,8 +23,8 @@ var commands = require("../commands");
 
 
 function handleNotCompatible(req, res) {
-  utils.log("Handling command ".concat(commands.COMMAND_NOTCOMPATIBLE, "..."));
-  utils.error("Request ".concat(req.method, ", ").concat(req.url, " is not compatible"));
+  common.log("Handling command ".concat(commands.COMMAND_NOTCOMPATIBLE, "..."));
+  common.error("Request ".concat(req.method, ", ").concat(req.url, " is not compatible"));
   res.statusCode = 500;
   res.end();
 }

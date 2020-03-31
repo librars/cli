@@ -22,7 +22,7 @@ var path = require("path");
 
 var fs = require("fs");
 
-var utils = require("./utils");
+var common = require("@librars/cli-common");
 
 var consts = require("./consts");
 /**
@@ -33,8 +33,8 @@ var consts = require("./consts");
 
 
 function tryFetchServerInfoFromDataDir() {
-  var dataDir = utils.getDataFolder();
-  var dir = path.join(dataDir, consts.DIR_NAME);
+  var dataDir = common.getDataFolder();
+  var dir = path.join(dataDir, common.DIR_NAME);
 
   if (fs.existsSync(dir)) {
     var configFilePath = path.join(dir, consts.CONFIG_FILE_NAME);

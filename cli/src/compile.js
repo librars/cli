@@ -9,9 +9,12 @@ const fs = require("fs");
 const path = require("path");
 const http = require("http");
 
+const common = require("@librars/cli-common");
+
 const utils = require("./utils");
 const commands = require("./commands");
 const operations = require("./operations");
+const version = require("./version");
 
 /**
  * Compiles a book.
@@ -39,12 +42,12 @@ export async function compile(serverinfo, dirpath, cleanAfter = true) {
 
     // Generate the tar
     const tarPath = await createTar(dirpath);
-    utils.log(`Tar created: ${tarPath}`);
+    common.log(`Tar created: ${tarPath}`);
 
     // Base64 encode
     const buffer = fs.readFileSync(tarPath);
     const base64data = buffer.toString("base64");
-    utils.log(`Tar base64 computed (len: ${base64data.length}): ${base64data}`);
+    common.log(`Tar base64 computed (len: ${base64data.length}): ${base64data}`);
 
     // Transmit the zip
     return new Promise((resolve, reject) => {
@@ -59,14 +62,14 @@ export async function compile(serverinfo, dirpath, cleanAfter = true) {
                 "Content-Type": "text/plain"
             }
         };
-        utils.addVersionHTTPHeaders(options.headers); // Add version headers for API compatibility check
+        common.communication.addVersionHTTPHeaders(options.headers, version.VERSION); // Add version headers for API compatibility check
 
         const commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
-        utils.log(`Initiating transmission to: ${commandUrl}`);
+        common.log(`Initiating transmission to: ${commandUrl}`);
 
         const clientRequest = http.request(options, res => {
-            utils.log(`STATUS: ${res.statusCode}`);
-            utils.log(`HEADERS: ${JSON.stringify(res.headers)}`);
+            common.log(`STATUS: ${res.statusCode}`);
+            common.log(`HEADERS: ${JSON.stringify(res.headers)}`);
             // res.setEncoding('utf8');
 
             let data = "";
@@ -76,7 +79,7 @@ export async function compile(serverinfo, dirpath, cleanAfter = true) {
             });
 
             res.on("end", () => {
-                utils.log(data);
+                common.log(data);
 
                 // Cleanup on finalize
                 if (cleanAfter) {
@@ -99,21 +102,21 @@ export async function compile(serverinfo, dirpath, cleanAfter = true) {
         // Send request
         clientRequest.write(base64data, "utf-8", (err) => {
             if (err) {
-                utils.error(`Error while sending request: ${err}`);
+                common.error(`Error while sending request: ${err}`);
                 return;
             }
 
             clientRequest.end(() => {
-                utils.log(`Request tx completed. Data transmitted to ${commandUrl}`);
-                utils.log("Awaiting response...");
+                common.log(`Request tx completed. Data transmitted to ${commandUrl}`);
+                common.log("Awaiting response...");
             });
         });
     });
 }
 
 async function createTar(dirpath) {
-    const dstDir = utils.ensureDataDir();
-    const tarFileName = `tar-${utils.generateId(true)}`;
+    const dstDir = common.ensureDataDir();
+    const tarFileName = `tar-${common.generateId(true)}`;
 
     const tarPath = await operations.tarFolder(dirpath, dstDir, tarFileName);
 
@@ -141,5 +144,5 @@ function clean(tarPath) {
     }
 
     utils.deleteFile(tarPath);
-    utils.log(`File ${tarPath} deleted.`);
+    common.log(`File ${tarPath} deleted.`);
 }

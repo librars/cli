@@ -15,11 +15,9 @@ var fs = require("fs");
 
 var path = require("path");
 
-var utils = require("../utils");
+var common = require("@librars/cli-common");
 
 var commands = require("../commands");
-
-var consts = require("../consts");
 /**
  * Handles a compile request.
  * 
@@ -29,7 +27,7 @@ var consts = require("../consts");
 
 
 function handleCompile(req, res) {
-  utils.log("Handling command ".concat(commands.COMMAND_COMPILE, "..."));
+  common.log("Handling command ".concat(commands.COMMAND_COMPILE, "..."));
 
   if (!checkRequest(req)) {
     res.statusCode = 500;
@@ -38,22 +36,22 @@ function handleCompile(req, res) {
   }
 
   var buffer = "";
-  var dstDir = path.join(path.normalize(utils.getDataFolder()), consts.DIR_NAME);
+  var dstDir = path.join(path.normalize(common.getDataFolder()), common.DIR_NAME);
   var dstPath = path.join(dstDir, "rcv-".concat(Math.ceil(Math.random() * 100000), ".tgz"));
   req.on("data", data => {
-    utils.log("Data received: ".concat(data));
+    common.log("Data received: ".concat(data));
     buffer += data;
   });
   req.on("end", () => {
-    utils.log("Request has been successfully received");
-    utils.log("Data buffer (len: ".concat(buffer.length, "): ").concat(buffer));
+    common.log("Request has been successfully received");
+    common.log("Data buffer (len: ".concat(buffer.length, "): ").concat(buffer));
     fs.writeFileSync(dstPath, new Buffer(buffer, "base64"), "base64");
-    utils.log("Zip written into: ".concat(dstPath));
+    common.log("Zip written into: ".concat(dstPath));
     res.write("{'body': 'ok'}");
     res.end();
   });
   req.on("error", err => {
-    utils.error("An error occurred while processing the request: ".concat(err));
+    common.error("An error occurred while processing the request: ".concat(err));
     res.statusCode = 500;
     res.end();
   });
@@ -61,7 +59,7 @@ function handleCompile(req, res) {
 
 function checkRequest(req) {
   if (req.method !== "POST") {
-    utils.error("Command ".concat(commands.COMMAND_COMPILE, " requires a POST, received a ").concat(req.method));
+    common.error("Command ".concat(commands.COMMAND_COMPILE, " requires a POST, received a ").concat(req.method));
     return false;
   }
 

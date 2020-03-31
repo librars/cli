@@ -11,7 +11,7 @@ exports.handleUnknown = handleUnknown;
  * 
  * Handles an unknown request.
  */
-var utils = require("../utils");
+var common = require("@librars/cli-common");
 
 var commands = require("../commands");
 /**
@@ -23,8 +23,8 @@ var commands = require("../commands");
 
 
 function handleUnknown(req, res) {
-  utils.log("Handling command ".concat(commands.COMMAND_UNKNOWN, "..."));
-  utils.error("Request ".concat(req, " could not be handled"));
+  common.log("Handling command ".concat(commands.COMMAND_UNKNOWN, "..."));
+  common.error("Request ".concat(req, " could not be handled"));
   res.statusCode = 500;
   res.end();
 }

@@ -14,7 +14,8 @@
 const path = require("path");
 const fs = require("fs");
 
-const utils = require("./utils");
+const common = require("@librars/cli-common");
+
 const consts = require("./consts");
 
 /**
@@ -23,8 +24,8 @@ const consts = require("./consts");
  * @returns {any} The server info object or null if not found.
  */
 export function tryFetchServerInfoFromDataDir() {
-    const dataDir = utils.getDataFolder();
-    const dir = path.join(dataDir, consts.DIR_NAME);
+    const dataDir = common.getDataFolder();
+    const dir = path.join(dataDir, common.DIR_NAME);
 
     if (fs.existsSync(dir)) {
         const configFilePath = path.join(dir, consts.CONFIG_FILE_NAME);

@@ -17,9 +17,7 @@ var fs = require("fs");
 
 var yargs = require("yargs");
 
-var utils = require("./utils");
-
-var consts = require("./consts");
+var common = require("@librars/cli-common");
 
 var commands = require("./commands");
 
@@ -38,18 +36,18 @@ var config = {
   dir: ensureDir(args.dir) // this will make sure the directory exists
 
 };
-utils.log("Server started. Listening on port ".concat(config.port, "...")); // Start the server
+common.log("Server started. Listening on port ".concat(config.port, "...")); // Start the server
 
 http.createServer((req, res) => {
   handleRequest(req, res);
 }).listen(config.port);
 
 function handleRequest(req, res) {
-  utils.log("Request received: ".concat(req.method, ", ").concat(req.url));
-  utils.log("Request headers: ".concat(JSON.stringify(req.headers)));
+  common.log("Request received: ".concat(req.method, ", ").concat(req.url));
+  common.log("Request headers: ".concat(JSON.stringify(req.headers)));
 
   if (!checkApiVersion(req)) {
-    utils.error("API version check failed for request. Request: ".concat(getVersionHeaderValue(req), ", daemon: ").concat(version.VERSION));
+    common.error("API version check failed for request. Request: ".concat(getVersionHeaderValue(req), ", daemon: ").concat(version.VERSION));
     commandHandlers.notcompatible(req, res);
     return;
   }
@@ -65,18 +63,18 @@ function handleRequest(req, res) {
 }
 
 function getVersionHeaderValue(req) {
-  return utils.getVersionFromHTTPHeaders(req.headers);
+  return common.communication.getVersionFromHTTPHeaders(req.headers);
 }
 
 function checkApiVersion(req) {
   var v = getVersionHeaderValue(req);
-  var parsedVersion = version.checkVersionFormat(v, false);
+  var parsedVersion = common.checkVersionFormat(v, false);
 
   if (!parsedVersion) {
     return false;
   }
 
-  return version.versionsCompatibilityCheck(parsedVersion, version.VERSION) >= 0;
+  return common.versionsCompatibilityCheck(parsedVersion, version.VERSION) >= 0;
 }
 
 function fetchArgs() {
@@ -109,8 +107,8 @@ function ensureDir(proposedDir) {
     return path.normalize(proposedDir);
   }
 
-  var homeDir = utils.getDataFolder();
-  var dir = path.join(homeDir, consts.DIR_NAME);
+  var homeDir = common.getDataFolder();
+  var dir = path.join(homeDir, common.DIR_NAME);
   ensure(dir, true);
   return path.normalize(dir);
 }

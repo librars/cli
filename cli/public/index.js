@@ -14,7 +14,7 @@
  */
 var yargs = require("yargs");
 
-var utils = require("./utils");
+var common = require("@librars/cli-common");
 
 var commands = require("./commands");
 
@@ -59,19 +59,19 @@ switch (config.command) {
 function handleCommandCompile() {
   var argPath = config.noopts[1];
   compile(serverinfo, argPath, true).then(() => {
-    utils.log("Completed command ".concat(commands.COMMAND_COMPILE));
+    common.log("Completed command ".concat(commands.COMMAND_COMPILE));
   }).catch(e => {
-    utils.error("Command ".concat(commands.COMMAND_COMPILE, " encountered an error: '").concat(e, "'"));
+    common.error("Command ".concat(commands.COMMAND_COMPILE, " encountered an error: '").concat(e, "'"));
   });
 }
 
 function handleCommand(name, handler) {
-  utils.log("Executing command '".concat(name, "'..."));
+  common.log("Executing command '".concat(name, "'..."));
 
   try {
     handler(); // Handling fujnction is async
   } catch (e) {
-    utils.error("An error occurred: ".concat(e));
+    common.error("An error occurred: ".concat(e));
     throw e; // Re-throw to make sure stack is displayed
   }
 }

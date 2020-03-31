@@ -2,7 +2,7 @@
   "name": "@librars/cli-common",
   "version": "0.1.0",
   "description": "Common API for client and daemon components of the client.",
-  "main": "index.js",
+  "main": "public/main.js",
   "scripts": {
     "build": "npm run lint && npm run run-babel",
     "build-debug": "npm run run-babel",
@@ -24,6 +24,10 @@
     "url": "https://github.com/librars/cli/issues"
   },
   "homepage": "https://github.com/librars/cli#readme",
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "uuid": "^7.0.2"
+  },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.0",

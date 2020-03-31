@@ -21,11 +21,15 @@ var path = require("path");
 
 var http = require("http");
 
+var common = require("@librars/cli-common");
+
 var utils = require("./utils");
 
 var commands = require("./commands");
 
 var operations = require("./operations");
+
+var version = require("./version");
 /**
  * Compiles a book.
  * 
@@ -63,11 +67,11 @@ function _compile() {
 
 
     var tarPath = yield createTar(dirpath);
-    utils.log("Tar created: ".concat(tarPath)); // Base64 encode
+    common.log("Tar created: ".concat(tarPath)); // Base64 encode
 
     var buffer = fs.readFileSync(tarPath);
     var base64data = buffer.toString("base64");
-    utils.log("Tar base64 computed (len: ".concat(base64data.length, "): ").concat(base64data)); // Transmit the zip
+    common.log("Tar base64 computed (len: ".concat(base64data.length, "): ").concat(base64data)); // Transmit the zip
 
     return new Promise((resolve, reject) => {
       var options = {
@@ -81,20 +85,20 @@ function _compile() {
           "Content-Type": "text/plain"
         }
       };
-      utils.addVersionHTTPHeaders(options.headers); // Add version headers for API compatibility check
+      common.communication.addVersionHTTPHeaders(options.headers, version.VERSION); // Add version headers for API compatibility check
 
       var commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
-      utils.log("Initiating transmission to: ".concat(commandUrl));
+      common.log("Initiating transmission to: ".concat(commandUrl));
       var clientRequest = http.request(options, res => {
-        utils.log("STATUS: ".concat(res.statusCode));
-        utils.log("HEADERS: ".concat(JSON.stringify(res.headers))); // res.setEncoding('utf8');
+        common.log("STATUS: ".concat(res.statusCode));
+        common.log("HEADERS: ".concat(JSON.stringify(res.headers))); // res.setEncoding('utf8');
 
         var data = "";
         res.on("data", chunk => {
           data += chunk;
         });
         res.on("end", () => {
-          utils.log(data); // Cleanup on finalize
+          common.log(data); // Cleanup on finalize
 
           if (cleanAfter) {
             clean(tarPath);
@@ -114,13 +118,13 @@ function _compile() {
 
       clientRequest.write(base64data, "utf-8", err => {
         if (err) {
-          utils.error("Error while sending request: ".concat(err));
+          common.error("Error while sending request: ".concat(err));
           return;
         }
 
         clientRequest.end(() => {
-          utils.log("Request tx completed. Data transmitted to ".concat(commandUrl));
-          utils.log("Awaiting response...");
+          common.log("Request tx completed. Data transmitted to ".concat(commandUrl));
+          common.log("Awaiting response...");
         });
       });
     });
@@ -135,8 +139,8 @@ function createTar(_x3) {
 
 function _createTar() {
   _createTar = _asyncToGenerator(function* (dirpath) {
-    var dstDir = utils.ensureDataDir();
-    var tarFileName = "tar-".concat(utils.generateId(true));
+    var dstDir = common.ensureDataDir();
+    var tarFileName = "tar-".concat(common.generateId(true));
     var tarPath = yield operations.tarFolder(dirpath, dstDir, tarFileName);
 
     if (path.join(dstDir, "".concat(tarFileName, ".tgz")) !== tarPath) {
@@ -171,5 +175,5 @@ function clean(tarPath) {
   }
 
   utils.deleteFile(tarPath);
-  utils.log("File ".concat(tarPath, " deleted."));
+  common.log("File ".concat(tarPath, " deleted."));
 }

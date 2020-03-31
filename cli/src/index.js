@@ -13,7 +13,8 @@
 
 const yargs = require("yargs");
 
-const utils = require("./utils");
+const common = require("@librars/cli-common");
+
 const commands = require("./commands");
 const compile = require("./compile").compile;
 const consts = require("./consts");
@@ -56,19 +57,19 @@ function handleCommandCompile() {
     const argPath = config.noopts[1];
 
     compile(serverinfo, argPath, true).then(() => {
-        utils.log(`Completed command ${commands.COMMAND_COMPILE}`);
+        common.log(`Completed command ${commands.COMMAND_COMPILE}`);
     }).catch((e) => {
-        utils.error(`Command ${commands.COMMAND_COMPILE} encountered an error: '${e}'`);
+        common.error(`Command ${commands.COMMAND_COMPILE} encountered an error: '${e}'`);
     });
 }
 
 function handleCommand(name, handler) {
-    utils.log(`Executing command '${name}'...`);
+    common.log(`Executing command '${name}'...`);
 
     try {
         handler(); // Handling fujnction is async
     } catch (e) {
-        utils.error(`An error occurred: ${e}`);
+        common.error(`An error occurred: ${e}`);
         throw e; // Re-throw to make sure stack is displayed
     }
 }

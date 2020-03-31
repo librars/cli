@@ -13,8 +13,8 @@ const path = require("path");
 const fs = require("fs");
 const yargs = require("yargs");
 
-const utils = require("./utils");
-const consts = require("./consts");
+const common = require("@librars/cli-common");
+
 const commands = require("./commands");
 const version = require("./version");
 const commandHandlers = {
@@ -31,7 +31,7 @@ const config = {
     dir: ensureDir(args.dir) // this will make sure the directory exists
 };
 
-utils.log(`Server started. Listening on port ${config.port}...`);
+common.log(`Server started. Listening on port ${config.port}...`);
 
 // Start the server
 http.createServer((req, res) => {
@@ -39,11 +39,11 @@ http.createServer((req, res) => {
 }).listen(config.port);
 
 function handleRequest(req, res) {
-    utils.log(`Request received: ${req.method}, ${req.url}`);
-    utils.log(`Request headers: ${JSON.stringify(req.headers)}`);
+    common.log(`Request received: ${req.method}, ${req.url}`);
+    common.log(`Request headers: ${JSON.stringify(req.headers)}`);
 
     if (!checkApiVersion(req)) {
-        utils.error(`API version check failed for request. Request: ${getVersionHeaderValue(req)}, daemon: ${version.VERSION}`);
+        common.error(`API version check failed for request. Request: ${getVersionHeaderValue(req)}, daemon: ${version.VERSION}`);
         commandHandlers.notcompatible(req, res);
         return;
     }
@@ -59,18 +59,18 @@ function handleRequest(req, res) {
 }
 
 function getVersionHeaderValue(req) {
-    return utils.getVersionFromHTTPHeaders(req.headers);
+    return common.communication.getVersionFromHTTPHeaders(req.headers);
 }
 
 function checkApiVersion(req) {
     const v = getVersionHeaderValue(req);
-    const parsedVersion = version.checkVersionFormat(v, false);
+    const parsedVersion = common.checkVersionFormat(v, false);
 
     if (!parsedVersion) {
         return false;
     }
 
-    return version.versionsCompatibilityCheck(parsedVersion, version.VERSION) >= 0;
+    return common.versionsCompatibilityCheck(parsedVersion, version.VERSION) >= 0;
 }
 
 function fetchArgs() {
@@ -103,8 +103,8 @@ function ensureDir(proposedDir) {
         return path.normalize(proposedDir);
     }
 
-    const homeDir = utils.getDataFolder();
-    const dir = path.join(homeDir, consts.DIR_NAME);
+    const homeDir = common.getDataFolder();
+    const dir = path.join(homeDir, common.DIR_NAME);
     ensure(dir, true);
     return path.normalize(dir);
 }

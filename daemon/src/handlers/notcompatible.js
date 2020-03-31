@@ -5,7 +5,8 @@
  * Handles a non-compatible request.
  */
 
-const utils = require("../utils");
+const common = require("@librars/cli-common");
+
 const commands = require("../commands");
 
 /**
@@ -15,8 +16,8 @@ const commands = require("../commands");
  * @param {any} res The response object.
  */
 export function handleNotCompatible(req, res) {
-    utils.log(`Handling command ${commands.COMMAND_NOTCOMPATIBLE}...`);
-    utils.error(`Request ${req.method}, ${req.url} is not compatible`);
+    common.log(`Handling command ${commands.COMMAND_NOTCOMPATIBLE}...`);
+    common.error(`Request ${req.method}, ${req.url} is not compatible`);
 
     res.statusCode = 500;
     res.end();
