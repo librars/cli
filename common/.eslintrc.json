@@ -1,0 +1,18 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "rules": {
+        "semi": "error",
+        "no-var": "error",
+        "no-labels": "error",
+        "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false }],
+        "no-unused-expressions": "error",
+        "camelcase": "error",
+        "spaced-comment": "error"
+    }
+}
