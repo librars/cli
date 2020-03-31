@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.COMMAND_UNKNOWN = exports.COMMAND_COMPILE = void 0;
+exports.COMMAND_NOTCOMPATIBLE = exports.COMMAND_UNKNOWN = exports.COMMAND_COMPILE = void 0;
 
 /**
  * commands.js
@@ -18,4 +18,8 @@ var COMMAND_COMPILE = "compile";
 
 exports.COMMAND_COMPILE = COMMAND_COMPILE;
 var COMMAND_UNKNOWN = "unknown";
+/** Not-compatible command. */
+
 exports.COMMAND_UNKNOWN = COMMAND_UNKNOWN;
+var COMMAND_NOTCOMPATIBLE = "notcompatible";
+exports.COMMAND_NOTCOMPATIBLE = COMMAND_NOTCOMPATIBLE;

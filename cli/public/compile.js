@@ -81,6 +81,8 @@ function _compile() {
           "Content-Type": "text/plain"
         }
       };
+      utils.addVersionHTTPHeaders(options.headers); // Add version headers for API compatibility check
+
       var commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
       utils.log("Initiating transmission to: ".concat(commandUrl));
       var clientRequest = http.request(options, res => {

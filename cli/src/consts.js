@@ -16,3 +16,6 @@ export const ZIP_INNER_FOLDER_NAME = "data";
 
 /** Default port. */
 export const PORT = 8080;
+
+/** The name of the HTTP header for version. */
+export const VERSION_HEADER_NAME = "librars-version";

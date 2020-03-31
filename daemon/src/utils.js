@@ -5,6 +5,8 @@
  * Utilities.
  */
 
+const consts = require("./consts");
+
 /**
  * Gets the Data folder.
  */
@@ -42,4 +44,33 @@ export function warn(msg) {
  */
 export function error(msg) {
     console.error(msg);
+}
+
+/**
+ * Ensures the version headers are added.
+ * 
+ * @param {any} headers The header object to which adding the version headers.
+ */
+export function addVersionHTTPHeaders(headers) {
+    const version = getVersionFromHTTPHeaders(headers);
+
+    if (version) {
+        throw new Error(`Header ${consts.VERSION_HEADER_NAME} already present: ${version}`);
+    }
+
+    headers[consts.VERSION_HEADER_NAME] = version.VERSION;
+}
+
+/**
+ * Extract the version header value.
+ * 
+ * @param {any} headers The header object to which adding the version headers.
+ * @returns {string} The version, null if not found.
+ */
+export function getVersionFromHTTPHeaders(headers) {
+    if (!headers[consts.VERSION_HEADER_NAME] || headers[consts.VERSION_HEADER_NAME].length === 0) {
+        return null;
+    }
+
+    return headers[consts.VERSION_HEADER_NAME];
 }

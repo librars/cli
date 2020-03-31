@@ -16,9 +16,11 @@ const yargs = require("yargs");
 const utils = require("./utils");
 const consts = require("./consts");
 const commands = require("./commands");
+const version = require("./version");
 const commandHandlers = {
     compile: require("./handlers/compile").handleCompile,
-    unknown: require("./handlers/unknown").handleUnknown
+    unknown: require("./handlers/unknown").handleUnknown,
+    notcompatible: require("./handlers/notcompatible").handleNotCompatible
 };
 
 const args = fetchArgs();
@@ -38,6 +40,13 @@ http.createServer((req, res) => {
 
 function handleRequest(req, res) {
     utils.log(`Request received: ${req.method}, ${req.url}`);
+    utils.log(`Request headers: ${JSON.stringify(req.headers)}`);
+
+    if (!checkApiVersion(req)) {
+        utils.error(`API version check failed for request. Request: ${getVersionHeaderValue(req)}, daemon: ${version.VERSION}`);
+        commandHandlers.notcompatible(req, res);
+        return;
+    }
 
     switch (req.url) {
         case `/${commands.COMMAND_COMPILE}`:
@@ -47,6 +56,21 @@ function handleRequest(req, res) {
         default:
             commandHandlers.unknown(req, res);
     }
+}
+
+function getVersionHeaderValue(req) {
+    return utils.getVersionFromHTTPHeaders(req.headers);
+}
+
+function checkApiVersion(req) {
+    const v = getVersionHeaderValue(req);
+    const parsedVersion = version.checkVersionFormat(v, false);
+
+    if (!parsedVersion) {
+        return false;
+    }
+
+    return version.versionsCompatibilityCheck(parsedVersion, version.VERSION) >= 0;
 }
 
 function fetchArgs() {

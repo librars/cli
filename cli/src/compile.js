@@ -59,6 +59,7 @@ export async function compile(serverinfo, dirpath, cleanAfter = true) {
                 "Content-Type": "text/plain"
             }
         };
+        utils.addVersionHTTPHeaders(options.headers); // Add version headers for API compatibility check
 
         const commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
         utils.log(`Initiating transmission to: ${commandUrl}`);

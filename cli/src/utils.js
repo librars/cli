@@ -11,6 +11,7 @@ const fs = require("fs");
 const path = require('path');
 
 const consts = require("./consts");
+const version = require("./version");
 
 /**
  * Gets the HOME folder.
@@ -115,6 +116,39 @@ export function ensureDataDir() {
     }
 
     return path.normalize(dir);
+}
+
+/**
+ * Ensures the version headers are added.
+ * 
+ * @param {any} headers The header object to which adding the version headers.
+ */
+export function addVersionHTTPHeaders(headers) {
+    const v = getVersionFromHTTPHeaders(headers);
+
+    if (v) {
+        throw new Error(`Header ${consts.VERSION_HEADER_NAME} already present: ${v}`);
+    }
+
+    headers[consts.VERSION_HEADER_NAME] = version.VERSION;
+}
+
+/**
+ * Extract the version header value.
+ * 
+ * @param {any} headers The header object to which adding the version headers.
+ * @returns {string} The version, null if not found.
+ */
+export function getVersionFromHTTPHeaders(headers) {
+    if (!headers) {
+        throw new Error("Parameter 'headers' cannot be null or undefined");
+    }
+
+    if (!headers[consts.VERSION_HEADER_NAME] || headers[consts.VERSION_HEADER_NAME].length === 0) {
+        return null;
+    }
+
+    return headers[consts.VERSION_HEADER_NAME];
 }
 
 function getCurrentTimestampAsId() {

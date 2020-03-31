@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PORT = exports.ZIP_INNER_FOLDER_NAME = exports.CONFIG_FILE_NAME = exports.DIR_NAME = void 0;
+exports.VERSION_HEADER_NAME = exports.PORT = exports.ZIP_INNER_FOLDER_NAME = exports.CONFIG_FILE_NAME = exports.DIR_NAME = void 0;
 
 /**
  * consts.js
@@ -26,4 +26,8 @@ var ZIP_INNER_FOLDER_NAME = "data";
 
 exports.ZIP_INNER_FOLDER_NAME = ZIP_INNER_FOLDER_NAME;
 var PORT = 8080;
+/** The name of the HTTP header for version. */
+
 exports.PORT = PORT;
+var VERSION_HEADER_NAME = "librars-version";
+exports.VERSION_HEADER_NAME = VERSION_HEADER_NAME;

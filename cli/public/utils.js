@@ -11,6 +11,8 @@ exports.generateId = generateId;
 exports.getAllFIlesInDirRecursively = getAllFIlesInDirRecursively;
 exports.deleteFile = deleteFile;
 exports.ensureDataDir = ensureDataDir;
+exports.addVersionHTTPHeaders = addVersionHTTPHeaders;
+exports.getVersionFromHTTPHeaders = getVersionFromHTTPHeaders;
 
 /**
  * utils.js
@@ -27,6 +29,8 @@ var fs = require("fs");
 var path = require('path');
 
 var consts = require("./consts");
+
+var version = require("./version");
 /**
  * Gets the HOME folder.
  */
@@ -140,6 +144,41 @@ function ensureDataDir() {
   }
 
   return path.normalize(dir);
+}
+/**
+ * Ensures the version headers are added.
+ * 
+ * @param {any} headers The header object to which adding the version headers.
+ */
+
+
+function addVersionHTTPHeaders(headers) {
+  var v = getVersionFromHTTPHeaders(headers);
+
+  if (v) {
+    throw new Error("Header ".concat(consts.VERSION_HEADER_NAME, " already present: ").concat(v));
+  }
+
+  headers[consts.VERSION_HEADER_NAME] = version.VERSION;
+}
+/**
+ * Extract the version header value.
+ * 
+ * @param {any} headers The header object to which adding the version headers.
+ * @returns {string} The version, null if not found.
+ */
+
+
+function getVersionFromHTTPHeaders(headers) {
+  if (!headers) {
+    throw new Error("Parameter 'headers' cannot be null or undefined");
+  }
+
+  if (!headers[consts.VERSION_HEADER_NAME] || headers[consts.VERSION_HEADER_NAME].length === 0) {
+    return null;
+  }
+
+  return headers[consts.VERSION_HEADER_NAME];
 }
 
 function getCurrentTimestampAsId() {
