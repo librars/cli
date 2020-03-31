@@ -39,7 +39,7 @@ function handleCompile(req, res) {
 
   var buffer = "";
   var dstDir = path.join(path.normalize(utils.getDataFolder()), consts.DIR_NAME);
-  var dstPath = path.join(dstDir, "rcv-".concat(Math.ceil(Math.random() * 100000), ".zip"));
+  var dstPath = path.join(dstDir, "rcv-".concat(Math.ceil(Math.random() * 100000), ".tgz"));
   req.on("data", data => {
     utils.log("Data received: ".concat(data));
     buffer += data;

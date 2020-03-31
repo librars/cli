@@ -90,7 +90,6 @@ function generateId(withTimestamp) {
  * @param {string} dirpath The path to the directory.
  * @returns {Array} An array of file paths relative to path.
  */
-// eslint-disable-next-line no-unused-vars
 
 
 function getAllFIlesInDirRecursively(dirpath) {

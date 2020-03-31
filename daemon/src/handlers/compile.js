@@ -31,7 +31,7 @@ export function handleCompile(req, res) {
     let buffer = "";
 
     const dstDir = path.join(path.normalize(utils.getDataFolder()), consts.DIR_NAME);
-    const dstPath = path.join(dstDir, `rcv-${Math.ceil(Math.random()*100000)}.zip`);
+    const dstPath = path.join(dstDir, `rcv-${Math.ceil(Math.random()*100000)}.tgz`);
 
     req.on("data", (data) => {
         utils.log(`Data received: ${data}`);

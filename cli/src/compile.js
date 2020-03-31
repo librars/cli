@@ -18,10 +18,11 @@ const operations = require("./operations");
  * 
  * @param {any} serverinfo The server info object.
  * @param {string} dirpath The path to the directory containing the book to compile.
- * @param {boolean} cleanzip A value indicating whether to clean the zip after the transmission completes.
+ * @param {boolean} cleanAfter A value indicating whether to clean intermediate resources after the transmission completes.
  * @returns {Promise} a promise.
+ * @async
  */
-export async function compile(serverinfo, dirpath, cleanzip = true) {
+export async function compile(serverinfo, dirpath, cleanAfter = true) {
     if (!serverinfo) {
         throw new Error("Argument serverinfo canot be null or undefined");
     }
@@ -36,15 +37,14 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
         throw new Error(`Path ${dirpath} does not point to a directory`);
     }
 
-    // Generate the zip
-    const zipPath = await createZip(dirpath);
-    utils.log(`Zip created: ${zipPath}`);
+    // Generate the tar
+    const tarPath = await createTar(dirpath);
+    utils.log(`Tar created: ${tarPath}`);
 
     // Base64 encode
-    const buffer = fs.readFileSync(zipPath);
+    const buffer = fs.readFileSync(tarPath);
     const base64data = buffer.toString("base64");
-    utils.log(`Zip base64 computed (len: ${base64data.length}): ${base64data}`);
-    // fs.writeFileSync("C:/Users/antino/AppData/Roaming/librars/shit.zip", new Buffer(base64data, "base64"), "base64");
+    utils.log(`Tar base64 computed (len: ${base64data.length}): ${base64data}`);
 
     // Transmit the zip
     return new Promise((resolve, reject) => {
@@ -56,8 +56,7 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
             protocol: "http:",
             encoding: null,
             headers: {
-                "Content-Type": "text/plain",
-                // "Content-Length": fs.statSync(zipPath).size
+                "Content-Type": "text/plain"
             }
         };
 
@@ -79,18 +78,18 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
                 utils.log(data);
 
                 // Cleanup on finalize
-                if (cleanzip) {
-                    cleanZip(zipPath);
+                if (cleanAfter) {
+                    clean(tarPath);
                 }
 
-                resolve("ok"); // Resolve only when receiving the response
+                resolve(); // Resolve only when receiving the response
             });
         });
 
         clientRequest.on("error", (err) => {
             // Cleanup upon error
-            if (cleanzip) {
-                cleanZip(zipPath);
+            if (cleanAfter) {
+                clean(tarPath);
             }
 
             reject(err);
@@ -111,23 +110,35 @@ export async function compile(serverinfo, dirpath, cleanzip = true) {
     });
 }
 
-async function createZip(dirpath) {
+async function createTar(dirpath) {
     const dstDir = utils.ensureDataDir();
-    const zipFileName = `zip-${utils.generateId(true)}`;
-    const zipPath = await operations.zipFolder(dirpath, dstDir, zipFileName);
+    const tarFileName = `tar-${utils.generateId(true)}`;
 
-    if (path.join(dstDir, `${zipFileName}.zip`) !== zipPath) {
-        throw new Error(`Created zip ${zipPath} was supposed to be in ${dstDir}.`);
+    const tarPath = await operations.tarFolder(dirpath, dstDir, tarFileName);
+
+    if (path.join(dstDir, `${tarFileName}.tgz`) !== tarPath) {
+        throw new Error(`Created tar ${tarPath} was supposed to be in ${dstDir}.`);
     }
 
-    return zipPath;
+    return tarPath;
 }
 
-function cleanZip(zipPath) {
-    if (!fs.existsSync(zipPath)) {
+// eslint-disable-next-line no-unused-vars
+async function untar(tarPath, dstFolder) {
+    const extractedDirPath = await operations.untarFolder(tarPath, dstFolder);
+
+    if (dstFolder !== extractedDirPath) {
+        throw new Error(`Extracted content ${extractedDirPath} was supposed to be in ${dstFolder}.`);
+    }
+
+    return extractedDirPath;
+}
+
+function clean(tarPath) {
+    if (!fs.existsSync(tarPath)) {
         return;
     }
 
-    utils.deleteFile(zipPath);
-    utils.log(`Zip file ${zipPath} deleted.`);
+    utils.deleteFile(tarPath);
+    utils.log(`File ${tarPath} deleted.`);
 }

@@ -31,8 +31,9 @@ var operations = require("./operations");
  * 
  * @param {any} serverinfo The server info object.
  * @param {string} dirpath The path to the directory containing the book to compile.
- * @param {boolean} cleanzip A value indicating whether to clean the zip after the transmission completes.
+ * @param {boolean} cleanAfter A value indicating whether to clean intermediate resources after the transmission completes.
  * @returns {Promise} a promise.
+ * @async
  */
 
 
@@ -42,7 +43,7 @@ function compile(_x, _x2) {
 
 function _compile() {
   _compile = _asyncToGenerator(function* (serverinfo, dirpath) {
-    var cleanzip = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+    var cleanAfter = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
     if (!serverinfo) {
       throw new Error("Argument serverinfo canot be null or undefined");
@@ -58,16 +59,15 @@ function _compile() {
 
     if (!fs.statSync(dirpath).isDirectory) {
       throw new Error("Path ".concat(dirpath, " does not point to a directory"));
-    } // Generate the zip
+    } // Generate the tar
 
 
-    var zipPath = yield createZip(dirpath);
-    utils.log("Zip created: ".concat(zipPath)); // Base64 encode
+    var tarPath = yield createTar(dirpath);
+    utils.log("Tar created: ".concat(tarPath)); // Base64 encode
 
-    var buffer = fs.readFileSync(zipPath);
+    var buffer = fs.readFileSync(tarPath);
     var base64data = buffer.toString("base64");
-    utils.log("Zip base64 computed (len: ".concat(base64data.length, "): ").concat(base64data)); // fs.writeFileSync("C:/Users/antino/AppData/Roaming/librars/shit.zip", new Buffer(base64data, "base64"), "base64");
-    // Transmit the zip
+    utils.log("Tar base64 computed (len: ".concat(base64data.length, "): ").concat(base64data)); // Transmit the zip
 
     return new Promise((resolve, reject) => {
       var options = {
@@ -78,8 +78,7 @@ function _compile() {
         protocol: "http:",
         encoding: null,
         headers: {
-          "Content-Type": "text/plain" // "Content-Length": fs.statSync(zipPath).size
-
+          "Content-Type": "text/plain"
         }
       };
       var commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
@@ -95,17 +94,17 @@ function _compile() {
         res.on("end", () => {
           utils.log(data); // Cleanup on finalize
 
-          if (cleanzip) {
-            cleanZip(zipPath);
+          if (cleanAfter) {
+            clean(tarPath);
           }
 
-          resolve("ok"); // Resolve only when receiving the response
+          resolve(); // Resolve only when receiving the response
         });
       });
       clientRequest.on("error", err => {
         // Cleanup upon error
-        if (cleanzip) {
-          cleanZip(zipPath);
+        if (cleanAfter) {
+          clean(tarPath);
         }
 
         reject(err);
@@ -127,30 +126,48 @@ function _compile() {
   return _compile.apply(this, arguments);
 }
 
-function createZip(_x3) {
-  return _createZip.apply(this, arguments);
-}
+function createTar(_x3) {
+  return _createTar.apply(this, arguments);
+} // eslint-disable-next-line no-unused-vars
 
-function _createZip() {
-  _createZip = _asyncToGenerator(function* (dirpath) {
+
+function _createTar() {
+  _createTar = _asyncToGenerator(function* (dirpath) {
     var dstDir = utils.ensureDataDir();
-    var zipFileName = "zip-".concat(utils.generateId(true));
-    var zipPath = yield operations.zipFolder(dirpath, dstDir, zipFileName);
+    var tarFileName = "tar-".concat(utils.generateId(true));
+    var tarPath = yield operations.tarFolder(dirpath, dstDir, tarFileName);
 
-    if (path.join(dstDir, "".concat(zipFileName, ".zip")) !== zipPath) {
-      throw new Error("Created zip ".concat(zipPath, " was supposed to be in ").concat(dstDir, "."));
+    if (path.join(dstDir, "".concat(tarFileName, ".tgz")) !== tarPath) {
+      throw new Error("Created tar ".concat(tarPath, " was supposed to be in ").concat(dstDir, "."));
     }
 
-    return zipPath;
+    return tarPath;
   });
-  return _createZip.apply(this, arguments);
+  return _createTar.apply(this, arguments);
 }
 
-function cleanZip(zipPath) {
-  if (!fs.existsSync(zipPath)) {
+function untar(_x4, _x5) {
+  return _untar.apply(this, arguments);
+}
+
+function _untar() {
+  _untar = _asyncToGenerator(function* (tarPath, dstFolder) {
+    var extractedDirPath = yield operations.untarFolder(tarPath, dstFolder);
+
+    if (dstFolder !== extractedDirPath) {
+      throw new Error("Extracted content ".concat(extractedDirPath, " was supposed to be in ").concat(dstFolder, "."));
+    }
+
+    return extractedDirPath;
+  });
+  return _untar.apply(this, arguments);
+}
+
+function clean(tarPath) {
+  if (!fs.existsSync(tarPath)) {
     return;
   }
 
-  utils.deleteFile(zipPath);
-  utils.log("Zip file ".concat(zipPath, " deleted."));
+  utils.deleteFile(tarPath);
+  utils.log("File ".concat(tarPath, " deleted."));
 }

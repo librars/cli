@@ -7,41 +7,64 @@
 
 const fs = require("fs");
 const path = require("path");
-const zip = require("archiver");
-
-const utils = require("./utils");
-const consts = require("./consts");
+const tar = require("tar");
 
 /**
- * Generates a zip archive of a folder.
+ * Generates a tar archive of a folder.
  * 
- * @param {string} src The path to the directory to zip.
- * @param {string} dst The path to the directory where the zip will be saved.
- * @param {string} name The name to assign to the generated zip (not inclusive of extension).
- * @returns {string} The path pointing to the newly created zip.
+ * @param {string} src The path to the directory to tar.
+ * @param {string} dst The path to the directory where the tar will be saved.
+ * @param {string} name The name to assign to the generated tar (not inclusive of extension).
+ * @returns {string} The path pointing to the newly created tar.
+ * @async
  */
-export async function zipFolder(src, dst, name) {
-    const dstZipPath = path.join(path.normalize(dst), `${name}.zip`);
-    const output = fs.createWriteStream(dstZipPath); // Prepare destination
-    const archive = zip("zip"); // Create a new zip archive
+export async function tarFolder(src, dst, name) {
+    const dstTarPath = path.join(path.normalize(dst), `${name}.tgz`);
+    const normalizedSrc = path.normalize(src);
+    const srcDirName = path.dirname(normalizedSrc);
+    const srcFolderName = path.basename(normalizedSrc);
 
-    output.on("close", () => {
-        utils.log(`${archive.pointer()} total bytes written.`);
+    const options = {
+        gzip: true,
+        cwd: srcDirName
+    };
+
+    return new Promise((resolve, reject) => {
+        const stream = tar.c(options, [srcFolderName]);
+        stream.pipe(fs.createWriteStream(dstTarPath));
+
+        stream.on("finish", () => {
+            resolve(dstTarPath);
+        });
+
+        stream.on("error", (err) => {
+            reject(err);
+        });
     });
+}
 
-    archive.on("error", (err) => {
-        utils.error(`An error occurred while zipping ${src}: ${err}.`);
-        throw err; // Display stack
-    });
-
-    // Initiate zip creation
-    archive.pipe(output);
-
-    // Add directory into the archive
-    archive.directory(src, consts.ZIP_INNER_FOLDER_NAME);
-
-    // Commit
-    await archive.finalize();
+/**
+ * Extracts a tar archive.
+ * 
+ * @param {string} src The path to the archive to untar.
+ * @param {string} dst The path to the directory where the tar (extracted) content will be saved.
+ * @returns {string} The path pointing to the newly created folder containing the (extracted) tar content.
+ * @async
+ */
+export async function untarFolder(src, dst) {
+    const normalizedSrc = path.normalize(src);
+    const normalizedDst = path.normalize(dst);
     
-    return dstZipPath;
+    return new Promise((resolve, reject) => {
+        const stream = fs.createReadStream(normalizedSrc);
+        stream.pipe(tar.x(normalizedDst));
+
+        stream.on("finish", () => {
+            resolve(normalizedDst);
+        });
+
+        stream.on("error", (err) => {
+            reject(err);
+        });
+    });
 }

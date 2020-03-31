@@ -3,7 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.zipFolder = zipFolder;
+exports.tarFolder = tarFolder;
+exports.untarFolder = untarFolder;
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
@@ -19,46 +20,73 @@ var fs = require("fs");
 
 var path = require("path");
 
-var zip = require("archiver");
-
-var utils = require("./utils");
-
-var consts = require("./consts");
+var tar = require("tar");
 /**
- * Generates a zip archive of a folder.
+ * Generates a tar archive of a folder.
  * 
- * @param {string} src The path to the directory to zip.
- * @param {string} dst The path to the directory where the zip will be saved.
- * @param {string} name The name to assign to the generated zip (not inclusive of extension).
- * @returns {string} The path pointing to the newly created zip.
+ * @param {string} src The path to the directory to tar.
+ * @param {string} dst The path to the directory where the tar will be saved.
+ * @param {string} name The name to assign to the generated tar (not inclusive of extension).
+ * @returns {string} The path pointing to the newly created tar.
+ * @async
  */
 
 
-function zipFolder(_x, _x2, _x3) {
-  return _zipFolder.apply(this, arguments);
+function tarFolder(_x, _x2, _x3) {
+  return _tarFolder.apply(this, arguments);
+}
+/**
+ * Extracts a tar archive.
+ * 
+ * @param {string} src The path to the archive to untar.
+ * @param {string} dst The path to the directory where the tar (extracted) content will be saved.
+ * @returns {string} The path pointing to the newly created folder containing the (extracted) tar content.
+ * @async
+ */
+
+
+function _tarFolder() {
+  _tarFolder = _asyncToGenerator(function* (src, dst, name) {
+    var dstTarPath = path.join(path.normalize(dst), "".concat(name, ".tgz"));
+    var normalizedSrc = path.normalize(src);
+    var srcDirName = path.dirname(normalizedSrc);
+    var srcFolderName = path.basename(normalizedSrc);
+    var options = {
+      gzip: true,
+      cwd: srcDirName
+    };
+    return new Promise((resolve, reject) => {
+      var stream = tar.c(options, [srcFolderName]);
+      stream.pipe(fs.createWriteStream(dstTarPath));
+      stream.on("finish", () => {
+        resolve(dstTarPath);
+      });
+      stream.on("error", err => {
+        reject(err);
+      });
+    });
+  });
+  return _tarFolder.apply(this, arguments);
 }
 
-function _zipFolder() {
-  _zipFolder = _asyncToGenerator(function* (src, dst, name) {
-    var dstZipPath = path.join(path.normalize(dst), "".concat(name, ".zip"));
-    var output = fs.createWriteStream(dstZipPath); // Prepare destination
+function untarFolder(_x4, _x5) {
+  return _untarFolder.apply(this, arguments);
+}
 
-    var archive = zip("zip"); // Create a new zip archive
-
-    output.on("close", () => {
-      utils.log("".concat(archive.pointer(), " total bytes written."));
+function _untarFolder() {
+  _untarFolder = _asyncToGenerator(function* (src, dst) {
+    var normalizedSrc = path.normalize(src);
+    var normalizedDst = path.normalize(dst);
+    return new Promise((resolve, reject) => {
+      var stream = fs.createReadStream(normalizedSrc);
+      stream.pipe(tar.x(normalizedDst));
+      stream.on("finish", () => {
+        resolve(normalizedDst);
+      });
+      stream.on("error", err => {
+        reject(err);
+      });
     });
-    archive.on("error", err => {
-      utils.error("An error occurred while zipping ".concat(src, ": ").concat(err, "."));
-      throw err; // Display stack
-    }); // Initiate zip creation
-
-    archive.pipe(output); // Add directory into the archive
-
-    archive.directory(src, consts.ZIP_INNER_FOLDER_NAME); // Commit
-
-    yield archive.finalize();
-    return dstZipPath;
   });
-  return _zipFolder.apply(this, arguments);
+  return _untarFolder.apply(this, arguments);
 }
