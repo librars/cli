@@ -1,6 +1,6 @@
 {
   "name": "@librars/cli",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Client RESTful interface to invoke LibRArs API remotely.",
   "main": "index.js",
   "scripts": {
