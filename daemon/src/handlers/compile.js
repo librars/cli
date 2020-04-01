@@ -29,12 +29,7 @@ export function handleCompile(req, res) {
         return;
     }
 
-    const exid = common.communication.getExecIdFromHTTPHeaders(req.headers); // Guaranteed to be available
-
     let buffer = "";
-
-    const dstDir = path.join(path.normalize(common.getDataFolder()), common.DIR_NAME);
-    const dstPath = path.join(dstDir, `${consts.TAR_FILE_PREFIX}-${exid}.tgz`);
 
     req.on("data", (data) => {
         common.log(`Data received: ${data}`);
@@ -43,18 +38,7 @@ export function handleCompile(req, res) {
     });
 
     req.on("end", () => {
-        common.log("Request has been successfully received");
-        common.log(`Data buffer (len: ${buffer.length}): ${buffer.substring(0, 100)}${buffer.length > 100 ? "..." : ""}`);
-
-        // Save the archive
-        fs.writeFileSync(dstPath, new Buffer(buffer, "base64"), "base64");
-        common.log(`Archive written into: ${dstPath}`);
-
-        // Extract the archive
-        // TODO
-
-        res.write("{'body': 'ok'}");
-        res.end();
+        onRequestFullyReceived(req, res, buffer);
     });
 
     req.on("error", (err) => {
@@ -63,6 +47,25 @@ export function handleCompile(req, res) {
         res.statusCode = 500;
         res.end();
     });
+}
+
+function onRequestFullyReceived(req, res, reqBody) {
+    const exid = common.communication.getExecIdFromHTTPHeaders(req.headers); // Guaranteed to be available
+    const dstDir = path.join(path.normalize(common.getDataFolder()), common.DIR_NAME);
+    const dstPath = path.join(dstDir, `${consts.TAR_FILE_PREFIX}-${exid}.tgz`);
+
+    common.log("Request has been successfully received");
+    common.log(`Request body (len: ${reqBody.length}): ${reqBody.substring(0, 100)}${reqBody.length > 100 ? "..." : ""}`);
+
+    // Save the archive
+    fs.writeFileSync(dstPath, Buffer.from(reqBody, "base64"), "base64");
+    common.log(`Archive written into: ${dstPath}`);
+
+    // Extract the archive
+    // TODO
+
+    res.write("{'body': 'ok'}");
+    res.end();
 }
 
 function checkRequest(req) {

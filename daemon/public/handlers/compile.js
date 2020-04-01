@@ -37,31 +37,35 @@ function handleCompile(req, res) {
     return;
   }
 
-  var exid = common.communication.getExecIdFromHTTPHeaders(req.headers); // Guaranteed to be available
-
   var buffer = "";
-  var dstDir = path.join(path.normalize(common.getDataFolder()), common.DIR_NAME);
-  var dstPath = path.join(dstDir, "".concat(consts.TAR_FILE_PREFIX, "-").concat(exid, ".tgz"));
   req.on("data", data => {
     common.log("Data received: ".concat(data));
     buffer += data;
   });
   req.on("end", () => {
-    common.log("Request has been successfully received");
-    common.log("Data buffer (len: ".concat(buffer.length, "): ").concat(buffer.substring(0, 100)).concat(buffer.length > 100 ? "..." : "")); // Save the archive
-
-    fs.writeFileSync(dstPath, new Buffer(buffer, "base64"), "base64");
-    common.log("Archive written into: ".concat(dstPath)); // Extract the archive
-    // TODO
-
-    res.write("{'body': 'ok'}");
-    res.end();
+    onRequestFullyReceived(req, res, buffer);
   });
   req.on("error", err => {
     common.error("An error occurred while processing the request: ".concat(err));
     res.statusCode = 500;
     res.end();
   });
+}
+
+function onRequestFullyReceived(req, res, reqBody) {
+  var exid = common.communication.getExecIdFromHTTPHeaders(req.headers); // Guaranteed to be available
+
+  var dstDir = path.join(path.normalize(common.getDataFolder()), common.DIR_NAME);
+  var dstPath = path.join(dstDir, "".concat(consts.TAR_FILE_PREFIX, "-").concat(exid, ".tgz"));
+  common.log("Request has been successfully received");
+  common.log("Request body (len: ".concat(reqBody.length, "): ").concat(reqBody.substring(0, 100)).concat(reqBody.length > 100 ? "..." : "")); // Save the archive
+
+  fs.writeFileSync(dstPath, Buffer.from(reqBody, "base64"), "base64");
+  common.log("Archive written into: ".concat(dstPath)); // Extract the archive
+  // TODO
+
+  res.write("{'body': 'ok'}");
+  res.end();
 }
 
 function checkRequest(req) {
