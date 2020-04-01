@@ -5,6 +5,10 @@
  * List of available commands.
  */
 
+const common = require("@librars/cli-common");
+
+const version = require("./version").version;
+
 /**
  * Compile.
  */
@@ -18,4 +22,18 @@ export const COMMAND_COMPILE = "compile";
  */
 export function buildCommandUrl(serverinfo, command) {
     return `${serverinfo.url}:${serverinfo.port}/${command}`;
+}
+
+/**
+ * Adds all required HTTP headers.
+ * 
+ * @param {object} headers The headers object.
+ * @returns {object} The same headers object.
+ */
+export function addRequiredHeadersToCommandRequest(headers) {
+    // Version
+    common.communication.addVersionHTTPHeaders(headers, version.COMMUNICATION_API);
+
+    // Execution ID (ExID)
+    common.communication.addExecIdHTTPHeaders(headers, common.generateId(false));
 }

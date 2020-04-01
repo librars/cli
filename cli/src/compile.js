@@ -13,7 +13,7 @@ const common = require("@librars/cli-common");
 
 const utils = require("./utils");
 const commands = require("./commands");
-const version = require("./version").version;
+const consts = require("./consts");
 
 /**
  * Compiles a book.
@@ -61,7 +61,7 @@ export async function compile(serverinfo, dirpath, cleanAfter = true) {
                 "Content-Type": "text/plain"
             }
         };
-        common.communication.addVersionHTTPHeaders(options.headers, version.COMMUNICATION_API); // Add version headers for API compatibility check
+        commands.addRequiredHeadersToCommandRequest(options.headers); // Handle all necessary headers
 
         const commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
         common.log(`Initiating transmission to: ${commandUrl}`);
@@ -115,7 +115,7 @@ export async function compile(serverinfo, dirpath, cleanAfter = true) {
 
 async function createTar(dirpath) {
     const dstDir = common.ensureDataDir();
-    const tarFileName = `tar-${common.generateId(true)}`;
+    const tarFileName = `${consts.TAR_FILE_PREFIX}-${common.generateId(true)}`;
 
     const tarPath = await common.filesystem.tarFolder(dirpath, dstDir, tarFileName);
 

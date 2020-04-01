@@ -27,7 +27,7 @@ var utils = require("./utils");
 
 var commands = require("./commands");
 
-var version = require("./version").version;
+var consts = require("./consts");
 /**
  * Compiles a book.
  * 
@@ -83,7 +83,7 @@ function _compile() {
           "Content-Type": "text/plain"
         }
       };
-      common.communication.addVersionHTTPHeaders(options.headers, version.COMMUNICATION_API); // Add version headers for API compatibility check
+      commands.addRequiredHeadersToCommandRequest(options.headers); // Handle all necessary headers
 
       var commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
       common.log("Initiating transmission to: ".concat(commandUrl));
@@ -138,7 +138,7 @@ function createTar(_x3) {
 function _createTar() {
   _createTar = _asyncToGenerator(function* (dirpath) {
     var dstDir = common.ensureDataDir();
-    var tarFileName = "tar-".concat(common.generateId(true));
+    var tarFileName = "".concat(consts.TAR_FILE_PREFIX, "-").concat(common.generateId(true));
     var tarPath = yield common.filesystem.tarFolder(dirpath, dstDir, tarFileName);
 
     if (path.join(dstDir, "".concat(tarFileName, ".tgz")) !== tarPath) {

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.filesystem = exports.communication = exports.ensureDataDir = exports.getDataFolder = exports.DIR_NAME = exports.generateId = exports.error = exports.warn = exports.log = exports.versionsCompatibilityCheck = exports.checkVersionFormat = void 0;
+exports.filesystem = exports.communication = exports.ensureDataDir = exports.getDataFolder = exports.DIR_NAME = exports.DAEMON_PORT = exports.generateId = exports.error = exports.warn = exports.log = exports.versionsCompatibilityCheck = exports.checkVersionFormat = void 0;
 
 /**
  * main.js
@@ -16,6 +16,8 @@ var version = require("./version");
 var logging = require("./logging");
 
 var id = require("./id");
+
+var config = require("./config");
 
 var application = require("./application");
 
@@ -48,9 +50,13 @@ var error = logging.error;
 
 exports.error = error;
 var generateId = id.generateId;
-/** @see {application.DIR_NAME} */
+/** @see {config.DAEMON_PORT} */
 
 exports.generateId = generateId;
+var DAEMON_PORT = config.DAEMON_PORT;
+/** @see {application.DIR_NAME} */
+
+exports.DAEMON_PORT = DAEMON_PORT;
 var DIR_NAME = application.DIR_NAME;
 /** @see {application.getDataFolder} */
 
@@ -67,14 +73,20 @@ var communication = {
   /** @see {communicationProtocol.VERSION_HEADER_NAME} */
   VERSION_HEADER_NAME: communicationProtocol.VERSION_HEADER_NAME,
 
-  /** @see {communicationHttp.addVersionHTTPHeaders} */
-  addVersionHTTPHeaders: communicationHttp.addVersionHTTPHeaders,
-
   /** @see {communicationHttp.statusCodes} */
   statusCodes: communicationHttp.statusCodes,
 
+  /** @see {communicationHttp.addVersionHTTPHeaders} */
+  addVersionHTTPHeaders: communicationHttp.addVersionHTTPHeaders,
+
   /** @see {communicationHttp.getVersionFromHTTPHeaders} */
-  getVersionFromHTTPHeaders: communicationHttp.getVersionFromHTTPHeaders
+  getVersionFromHTTPHeaders: communicationHttp.getVersionFromHTTPHeaders,
+
+  /** @see {communicationHttp.addExecIdHTTPHeaders} */
+  addExecIdHTTPHeaders: communicationHttp.addExecIdHTTPHeaders,
+
+  /** @see {communicationHttp.getExecIdFromHTTPHeaders} */
+  getExecIdFromHTTPHeaders: communicationHttp.getExecIdFromHTTPHeaders
 };
 /** The filesystem namespace. */
 

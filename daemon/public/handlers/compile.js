@@ -18,6 +18,8 @@ var path = require("path");
 var common = require("@librars/cli-common");
 
 var commands = require("../commands");
+
+var consts = require("../consts");
 /**
  * Handles a compile request.
  * 
@@ -37,7 +39,7 @@ function handleCompile(req, res) {
 
   var buffer = "";
   var dstDir = path.join(path.normalize(common.getDataFolder()), common.DIR_NAME);
-  var dstPath = path.join(dstDir, "rcv-".concat(Math.ceil(Math.random() * 100000), ".tgz"));
+  var dstPath = path.join(dstDir, "".concat(consts.TAR_FILE_PREFIX, "-").concat(Math.ceil(Math.random() * 100000), ".tgz"));
   req.on("data", data => {
     common.log("Data received: ".concat(data));
     buffer += data;

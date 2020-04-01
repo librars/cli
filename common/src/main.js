@@ -8,6 +8,7 @@
 const version = require("./version");
 const logging = require("./logging");
 const id = require("./id");
+const config = require("./config");
 const application = require("./application");
 const communicationProtocol = require("./communication/protocol");
 const communicationHttp = require("./communication/http");
@@ -43,6 +44,12 @@ export const generateId = id.generateId;
 
 
 
+/** @see {config.DAEMON_PORT} */
+export const DAEMON_PORT = config.DAEMON_PORT;
+
+
+
+
 /** @see {application.DIR_NAME} */
 export const DIR_NAME = application.DIR_NAME;
 
@@ -60,12 +67,16 @@ export const communication = {
     /** @see {communicationProtocol.VERSION_HEADER_NAME} */
     VERSION_HEADER_NAME: communicationProtocol.VERSION_HEADER_NAME,
 
-    /** @see {communicationHttp.addVersionHTTPHeaders} */
-    addVersionHTTPHeaders: communicationHttp.addVersionHTTPHeaders,
     /** @see {communicationHttp.statusCodes} */
     statusCodes: communicationHttp.statusCodes,
+    /** @see {communicationHttp.addVersionHTTPHeaders} */
+    addVersionHTTPHeaders: communicationHttp.addVersionHTTPHeaders,
     /** @see {communicationHttp.getVersionFromHTTPHeaders} */
     getVersionFromHTTPHeaders: communicationHttp.getVersionFromHTTPHeaders,
+    /** @see {communicationHttp.addExecIdHTTPHeaders} */
+    addExecIdHTTPHeaders: communicationHttp.addExecIdHTTPHeaders,
+    /** @see {communicationHttp.getExecIdFromHTTPHeaders} */
+    getExecIdFromHTTPHeaders: communicationHttp.getExecIdFromHTTPHeaders,
 };
 
 

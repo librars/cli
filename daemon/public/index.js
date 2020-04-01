@@ -21,17 +21,10 @@ var common = require("@librars/cli-common");
 
 var commands = require("./commands");
 
-var version = require("./version").version;
-
-var commandHandlers = {
-  compile: require("./handlers/compile").handleCompile,
-  unknown: require("./handlers/unknown").handleUnknown,
-  notcompatible: require("./handlers/notcompatible").handleNotCompatible
-};
 var args = fetchArgs();
 var config = {
   // Server listening to this port
-  port: args.port | 8080,
+  port: args.port | common.DAEMON_PORT,
   // Directory where dumping received content
   dir: ensureDir(args.dir) // this will make sure the directory exists
 
@@ -44,37 +37,28 @@ http.createServer((req, res) => {
 
 function handleRequest(req, res) {
   common.log("Request received: ".concat(req.method, ", ").concat(req.url));
-  common.log("Request headers: ".concat(JSON.stringify(req.headers)));
+  common.log("Request headers: ".concat(JSON.stringify(req.headers))); // Is request valid?
 
-  if (!checkApiVersion(req)) {
-    common.error("API version check failed for request. Request: ".concat(getVersionHeaderValue(req), ", daemon: ").concat(version.COMMUNICATION_API));
-    commandHandlers.notcompatible(req, res);
+  var handlerMapperError = commands.mapErrorHandlingCommand(req);
+
+  if (handlerMapperError) {
+    common.error("An error occurred while handling the request: ".concat(handlerMapperError.error));
+
+    if (handlerMapperError) {
+      handlerMapperError.handler(req, res);
+    }
+
     return;
+  } // Compute command to use and run it
+
+
+  var mappedCommandHandler = commands.mapCommand(req);
+
+  if (!mappedCommandHandler) {
+    throw new Error("Request ".concat(req.method, ", ").concat(req.url, " could not be mapped, but the unknown handler was expected"));
   }
 
-  switch (req.url) {
-    case "/".concat(commands.COMMAND_COMPILE):
-      commandHandlers.compile(req, res);
-      break;
-
-    default:
-      commandHandlers.unknown(req, res);
-  }
-}
-
-function getVersionHeaderValue(req) {
-  return common.communication.getVersionFromHTTPHeaders(req.headers);
-}
-
-function checkApiVersion(req) {
-  var v = getVersionHeaderValue(req);
-  var parsedVersion = common.checkVersionFormat(v, false);
-
-  if (!parsedVersion) {
-    return false;
-  }
-
-  return common.versionsCompatibilityCheck(parsedVersion, version.COMMUNICATION_API) >= 0;
+  mappedCommandHandler(req, res); // Run the command
 }
 
 function fetchArgs() {

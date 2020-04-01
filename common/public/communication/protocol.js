@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.VERSION_HEADER_NAME = void 0;
+exports.EXEC_ID_HEADER_NAME = exports.VERSION_HEADER_NAME = void 0;
 
 /**
  * protocol.js
@@ -14,4 +14,8 @@ exports.VERSION_HEADER_NAME = void 0;
 
 /** The name of the HTTP header for version. */
 var VERSION_HEADER_NAME = "librars-version";
+/** The name of the HTTP header for the execution id. */
+
 exports.VERSION_HEADER_NAME = VERSION_HEADER_NAME;
+var EXEC_ID_HEADER_NAME = "librars-exid";
+exports.EXEC_ID_HEADER_NAME = EXEC_ID_HEADER_NAME;

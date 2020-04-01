@@ -20,8 +20,6 @@ var commands = require("./commands");
 
 var compile = require("./compile").compile;
 
-var consts = require("./consts");
-
 var serverconfig = require("./serverconfig");
 
 var args = fetchArgs();
@@ -39,7 +37,7 @@ var config = {
 var machServerinfo = fetchServerinfo(config);
 var serverinfo = {
   url: machServerinfo.url,
-  port: machServerinfo.port | consts.PORT
+  port: machServerinfo.port | common.DAEMON_PORT
 };
 
 if (!serverinfo.url) {

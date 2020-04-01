@@ -16,17 +16,11 @@ const yargs = require("yargs");
 const common = require("@librars/cli-common");
 
 const commands = require("./commands");
-const version = require("./version").version;
-const commandHandlers = {
-    compile: require("./handlers/compile").handleCompile,
-    unknown: require("./handlers/unknown").handleUnknown,
-    notcompatible: require("./handlers/notcompatible").handleNotCompatible
-};
 
 const args = fetchArgs();
 const config = {
     // Server listening to this port
-    port: args.port | 8080,
+    port: args.port | common.DAEMON_PORT,
     // Directory where dumping received content
     dir: ensureDir(args.dir) // this will make sure the directory exists
 };
@@ -42,35 +36,25 @@ function handleRequest(req, res) {
     common.log(`Request received: ${req.method}, ${req.url}`);
     common.log(`Request headers: ${JSON.stringify(req.headers)}`);
 
-    if (!checkApiVersion(req)) {
-        common.error(`API version check failed for request. Request: ${getVersionHeaderValue(req)}, daemon: ${version.COMMUNICATION_API}`);
-        commandHandlers.notcompatible(req, res);
+    // Is request valid?
+    const handlerMapperError = commands.mapErrorHandlingCommand(req);
+    if (handlerMapperError) {
+        common.error(`An error occurred while handling the request: ${handlerMapperError.error}`);
+
+        if (handlerMapperError) {
+            handlerMapperError.handler(req, res);
+        }
+
         return;
     }
 
-    switch (req.url) {
-        case `/${commands.COMMAND_COMPILE}`:
-            commandHandlers.compile(req, res);
-            break;
-
-        default:
-            commandHandlers.unknown(req, res);
-    }
-}
-
-function getVersionHeaderValue(req) {
-    return common.communication.getVersionFromHTTPHeaders(req.headers);
-}
-
-function checkApiVersion(req) {
-    const v = getVersionHeaderValue(req);
-    const parsedVersion = common.checkVersionFormat(v, false);
-
-    if (!parsedVersion) {
-        return false;
+    // Compute command to use and run it
+    const mappedCommandHandler = commands.mapCommand(req);
+    if (!mappedCommandHandler) {
+        throw new Error(`Request ${req.method}, ${req.url} could not be mapped, but the unknown handler was expected`);
     }
 
-    return common.versionsCompatibilityCheck(parsedVersion, version.COMMUNICATION_API) >= 0;
+    mappedCommandHandler(req, res); // Run the command
 }
 
 function fetchArgs() {

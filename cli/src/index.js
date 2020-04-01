@@ -17,7 +17,6 @@ const common = require("@librars/cli-common");
 
 const commands = require("./commands");
 const compile = require("./compile").compile;
-const consts = require("./consts");
 const serverconfig = require("./serverconfig");
 
 const args = fetchArgs();
@@ -36,7 +35,7 @@ const config = {
 const machServerinfo = fetchServerinfo(config);
 const serverinfo = {
     url: machServerinfo.url,
-    port: machServerinfo.port | consts.PORT
+    port: machServerinfo.port | common.DAEMON_PORT
 };
 
 if (!serverinfo.url) {

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PORT = exports.CONFIG_FILE_NAME = void 0;
+exports.TAR_FILE_PREFIX = exports.CONFIG_FILE_NAME = void 0;
 
 /**
  * consts.js
@@ -14,8 +14,8 @@ exports.PORT = exports.CONFIG_FILE_NAME = void 0;
 
 /** Daemon config file name. */
 var CONFIG_FILE_NAME = "cli.config.json";
-/** Default port. */
+/** Prefix to use when naming the archive generated when compiling a folder. */
 
 exports.CONFIG_FILE_NAME = CONFIG_FILE_NAME;
-var PORT = 8080;
-exports.PORT = PORT;
+var TAR_FILE_PREFIX = "compile-tar";
+exports.TAR_FILE_PREFIX = TAR_FILE_PREFIX;

@@ -16,33 +16,60 @@ export const statusCodes = {
 /**
  * Ensures the version headers are added.
  * 
- * @param {any} headers The header object to which adding the version headers.
+ * @param {any} headers The header object to which adding the headers.
  * @param {string} version The version to set.
  */
-export function addVersionHTTPHeaders(headers, version) {
-    const v = getVersionFromHTTPHeaders(headers);
-
-    if (v) {
-        throw new Error(`Header ${protocol.VERSION_HEADER_NAME} already present: ${v}`);
-    }
-
-    headers[protocol.VERSION_HEADER_NAME] = version;
-}
+export const addVersionHTTPHeaders = (headers, version) => addToHTTPHeaders(headers, protocol.VERSION_HEADER_NAME, version);
 
 /**
  * Extract the version header value.
  * 
- * @param {any} headers The header object to which adding the version headers.
+ * @param {any} headers The header object to which adding the headers.
  * @returns {string} The version, null if not found.
  */
-export function getVersionFromHTTPHeaders(headers) {
+export const getVersionFromHTTPHeaders = (headers) => getHeader(headers, protocol.VERSION_HEADER_NAME);
+
+/**
+ * Ensures the execution id headers are added.
+ * 
+ * @param {any} headers The header object to which adding the headers.
+ * @param {string} id The exid to set.
+ */
+export const addExecIdHTTPHeaders = (headers, exid) => addToHTTPHeaders(headers, protocol.EXEC_ID_HEADER_NAME, exid);
+
+/**
+ * Extract the execution id header value.
+ * 
+ * @param {any} headers The header object to which adding the headers.
+ * @returns {string} The exid, null if not found.
+ */
+export const getExecIdFromHTTPHeaders = (headers) => getHeader(headers, protocol.EXEC_ID_HEADER_NAME);
+
+function getHeader(headers, name) {
     if (!headers) {
         throw new Error("Parameter 'headers' cannot be null or undefined");
     }
+    if (!name) {
+        throw new Error("Parameter 'name' cannot be null or undefined");
+    }
 
-    if (!headers[protocol.VERSION_HEADER_NAME] || headers[protocol.VERSION_HEADER_NAME].length === 0) {
+    if (!headers[name] || headers[name].length === 0) {
         return null;
     }
 
-    return headers[protocol.VERSION_HEADER_NAME];
+    return headers[name];
+}
+
+function addToHTTPHeaders(headers, name, value) {
+    if (!value) {
+        throw new Error("Parameter 'value' cannot be null or undefined");
+    }
+
+    const v = getHeader(headers, name);
+
+    if (v) {
+        throw new Error(`Header ${name} already present, its value is: '${v}'. Cannot override, forbidden`);
+    }
+
+    headers[name] = value;
 }
