@@ -61,6 +61,8 @@ export const communication = {
 
     /** @see {communicationHttp.addVersionHTTPHeaders} */
     addVersionHTTPHeaders: communicationHttp.addVersionHTTPHeaders,
+    /** @see {communicationHttp.statusCodes} */
+    statusCodes: communicationHttp.statusCodes,
     /** @see {communicationHttp.getVersionFromHTTPHeaders} */
     getVersionFromHTTPHeaders: communicationHttp.getVersionFromHTTPHeaders,
 };

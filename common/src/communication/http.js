@@ -7,6 +7,12 @@
 
 const protocol = require("./protocol");
 
+/** HTTP status codes. */
+export const statusCodes = {
+    /** Bad request. */
+    BAD_REQUEST: 400,
+};
+
 /**
  * Ensures the version headers are added.
  * 

@@ -14,7 +14,7 @@ const common = require("@librars/cli-common");
 const utils = require("./utils");
 const commands = require("./commands");
 const operations = require("./operations");
-const version = require("./version");
+const version = require("./version").version;
 
 /**
  * Compiles a book.
@@ -62,7 +62,7 @@ export async function compile(serverinfo, dirpath, cleanAfter = true) {
                 "Content-Type": "text/plain"
             }
         };
-        common.communication.addVersionHTTPHeaders(options.headers, version.VERSION); // Add version headers for API compatibility check
+        common.communication.addVersionHTTPHeaders(options.headers, version.COMMUNICATION_API); // Add version headers for API compatibility check
 
         const commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
         common.log(`Initiating transmission to: ${commandUrl}`);

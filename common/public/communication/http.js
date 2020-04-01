@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.addVersionHTTPHeaders = addVersionHTTPHeaders;
 exports.getVersionFromHTTPHeaders = getVersionFromHTTPHeaders;
+exports.statusCodes = void 0;
 
 /**
  * http.js
@@ -13,6 +14,13 @@ exports.getVersionFromHTTPHeaders = getVersionFromHTTPHeaders;
  * HTTP specific functionalities.
  */
 var protocol = require("./protocol");
+/** HTTP status codes. */
+
+
+var statusCodes = {
+  /** Bad request. */
+  BAD_REQUEST: 400
+};
 /**
  * Ensures the version headers are added.
  * 
@@ -20,6 +28,7 @@ var protocol = require("./protocol");
  * @param {string} version The version to set.
  */
 
+exports.statusCodes = statusCodes;
 
 function addVersionHTTPHeaders(headers, version) {
   var v = getVersionFromHTTPHeaders(headers);

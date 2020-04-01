@@ -5,5 +5,8 @@
  * Versioning.
  */
 
-/** Client version. */
-export const VERSION = "0.1.0.0";
+/** Version object. */
+export const version = {
+    /** Version of the communication API. */
+    COMMUNICATION_API: "0.1.0.0",
+};

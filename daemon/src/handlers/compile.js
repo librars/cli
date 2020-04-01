@@ -22,7 +22,7 @@ export function handleCompile(req, res) {
     common.log(`Handling command ${commands.COMMAND_COMPILE}...`);
 
     if (!checkRequest(req)) {
-        res.statusCode = 500;
+        res.statusCode = common.communication.statusCodes.BAD_REQUEST;
         res.end();
 
         return;
@@ -41,10 +41,14 @@ export function handleCompile(req, res) {
 
     req.on("end", () => {
         common.log("Request has been successfully received");
-        common.log(`Data buffer (len: ${buffer.length}): ${buffer}`);
+        common.log(`Data buffer (len: ${buffer.length}): ${buffer.substring(0, 100)}${buffer.length > 100 ? "..." : ""}`);
 
+        // Save the archive
         fs.writeFileSync(dstPath, new Buffer(buffer, "base64"), "base64");
-        common.log(`Zip written into: ${dstPath}`);
+        common.log(`Archive written into: ${dstPath}`);
+
+        // Extract the archive
+        // TODO
 
         res.write("{'body': 'ok'}");
         res.end();

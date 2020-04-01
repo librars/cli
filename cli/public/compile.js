@@ -29,7 +29,7 @@ var commands = require("./commands");
 
 var operations = require("./operations");
 
-var version = require("./version");
+var version = require("./version").version;
 /**
  * Compiles a book.
  * 
@@ -85,7 +85,7 @@ function _compile() {
           "Content-Type": "text/plain"
         }
       };
-      common.communication.addVersionHTTPHeaders(options.headers, version.VERSION); // Add version headers for API compatibility check
+      common.communication.addVersionHTTPHeaders(options.headers, version.COMMUNICATION_API); // Add version headers for API compatibility check
 
       var commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
       common.log("Initiating transmission to: ".concat(commandUrl));

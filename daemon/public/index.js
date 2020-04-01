@@ -21,7 +21,7 @@ var common = require("@librars/cli-common");
 
 var commands = require("./commands");
 
-var version = require("./version");
+var version = require("./version").version;
 
 var commandHandlers = {
   compile: require("./handlers/compile").handleCompile,
@@ -47,7 +47,7 @@ function handleRequest(req, res) {
   common.log("Request headers: ".concat(JSON.stringify(req.headers)));
 
   if (!checkApiVersion(req)) {
-    common.error("API version check failed for request. Request: ".concat(getVersionHeaderValue(req), ", daemon: ").concat(version.VERSION));
+    common.error("API version check failed for request. Request: ".concat(getVersionHeaderValue(req), ", daemon: ").concat(version.COMMUNICATION_API));
     commandHandlers.notcompatible(req, res);
     return;
   }
@@ -74,7 +74,7 @@ function checkApiVersion(req) {
     return false;
   }
 
-  return common.versionsCompatibilityCheck(parsedVersion, version.VERSION) >= 0;
+  return common.versionsCompatibilityCheck(parsedVersion, version.COMMUNICATION_API) >= 0;
 }
 
 function fetchArgs() {
