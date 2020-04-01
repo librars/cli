@@ -5,7 +5,10 @@
   "main": "public/main.js",
   "scripts": {
     "build": "npm run lint && npm run run-babel",
+    "clean": "node ./node_modules/rimraf/bin.js public",
+    "rebuild": "npm run clean && npm run build",
     "build-debug": "npm run run-babel",
+    "rebuild-debug": "npm run clean && npm run build-debug",
     "lint": "eslint src/**/*.js",
     "run-babel": "node ./node_modules/@babel/cli/bin/babel.js src -d public",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -26,12 +29,14 @@
   "homepage": "https://github.com/librars/cli#readme",
   "dependencies": {
     "chalk": "^3.0.0",
-    "uuid": "^7.0.2"
+    "uuid": "^7.0.2",
+    "tar": "^6.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.8.7",
-    "eslint": "^6.8.0"
+    "eslint": "^6.8.0",
+    "rimraf": "^3.0.2"
   }
 }

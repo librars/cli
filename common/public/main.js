@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.communication = exports.ensureDataDir = exports.getDataFolder = exports.DIR_NAME = exports.generateId = exports.error = exports.warn = exports.log = exports.versionsCompatibilityCheck = exports.checkVersionFormat = void 0;
+exports.filesystem = exports.communication = exports.ensureDataDir = exports.getDataFolder = exports.DIR_NAME = exports.generateId = exports.error = exports.warn = exports.log = exports.versionsCompatibilityCheck = exports.checkVersionFormat = void 0;
 
 /**
  * main.js
@@ -22,6 +22,8 @@ var application = require("./application");
 var communicationProtocol = require("./communication/protocol");
 
 var communicationHttp = require("./communication/http");
+
+var filesystemArchive = require("./filesystem/archive");
 /** @see {version.checkVersionFormat} */
 
 
@@ -74,4 +76,14 @@ var communication = {
   /** @see {communicationHttp.getVersionFromHTTPHeaders} */
   getVersionFromHTTPHeaders: communicationHttp.getVersionFromHTTPHeaders
 };
+/** The filesystem namespace. */
+
 exports.communication = communication;
+var filesystem = {
+  /** @see {filesystemArchive.tarFolder} */
+  tarFolder: filesystemArchive.tarFolder,
+
+  /** @see {filesystemArchive.untarFolder} */
+  untarFolder: filesystemArchive.untarFolder
+};
+exports.filesystem = filesystem;

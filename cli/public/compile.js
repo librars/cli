@@ -27,8 +27,6 @@ var utils = require("./utils");
 
 var commands = require("./commands");
 
-var operations = require("./operations");
-
 var version = require("./version").version;
 /**
  * Compiles a book.
@@ -141,7 +139,7 @@ function _createTar() {
   _createTar = _asyncToGenerator(function* (dirpath) {
     var dstDir = common.ensureDataDir();
     var tarFileName = "tar-".concat(common.generateId(true));
-    var tarPath = yield operations.tarFolder(dirpath, dstDir, tarFileName);
+    var tarPath = yield common.filesystem.tarFolder(dirpath, dstDir, tarFileName);
 
     if (path.join(dstDir, "".concat(tarFileName, ".tgz")) !== tarPath) {
       throw new Error("Created tar ".concat(tarPath, " was supposed to be in ").concat(dstDir, "."));
@@ -158,7 +156,7 @@ function untar(_x4, _x5) {
 
 function _untar() {
   _untar = _asyncToGenerator(function* (tarPath, dstFolder) {
-    var extractedDirPath = yield operations.untarFolder(tarPath, dstFolder);
+    var extractedDirPath = yield common.filesystem.untarFolder(tarPath, dstFolder);
 
     if (dstFolder !== extractedDirPath) {
       throw new Error("Extracted content ".concat(extractedDirPath, " was supposed to be in ").concat(dstFolder, "."));

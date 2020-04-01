@@ -30,7 +30,7 @@ function handleCompile(req, res) {
   common.log("Handling command ".concat(commands.COMMAND_COMPILE, "..."));
 
   if (!checkRequest(req)) {
-    res.statusCode = 500;
+    res.statusCode = common.communication.statusCodes.BAD_REQUEST;
     res.end();
     return;
   }
@@ -44,9 +44,12 @@ function handleCompile(req, res) {
   });
   req.on("end", () => {
     common.log("Request has been successfully received");
-    common.log("Data buffer (len: ".concat(buffer.length, "): ").concat(buffer));
+    common.log("Data buffer (len: ".concat(buffer.length, "): ").concat(buffer.substring(0, 100)).concat(buffer.length > 100 ? "..." : "")); // Save the archive
+
     fs.writeFileSync(dstPath, new Buffer(buffer, "base64"), "base64");
-    common.log("Zip written into: ".concat(dstPath));
+    common.log("Archive written into: ".concat(dstPath)); // Extract the archive
+    // TODO
+
     res.write("{'body': 'ok'}");
     res.end();
   });

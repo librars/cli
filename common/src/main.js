@@ -11,6 +11,7 @@ const id = require("./id");
 const application = require("./application");
 const communicationProtocol = require("./communication/protocol");
 const communicationHttp = require("./communication/http");
+const filesystemArchive = require("./filesystem/archive");
 
 
 
@@ -65,4 +66,15 @@ export const communication = {
     statusCodes: communicationHttp.statusCodes,
     /** @see {communicationHttp.getVersionFromHTTPHeaders} */
     getVersionFromHTTPHeaders: communicationHttp.getVersionFromHTTPHeaders,
+};
+
+
+
+
+/** The filesystem namespace. */
+export const filesystem = {
+    /** @see {filesystemArchive.tarFolder} */
+    tarFolder: filesystemArchive.tarFolder,
+    /** @see {filesystemArchive.untarFolder} */
+    untarFolder: filesystemArchive.untarFolder,
 };

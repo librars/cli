@@ -1,8 +1,8 @@
 /**
- * operations.js
+ * archive.js
  * Andrea Tino - 2020
  * 
- * Operations.
+ * Handling archives.
  */
 
 const fs = require("fs");

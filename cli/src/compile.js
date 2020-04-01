@@ -13,7 +13,6 @@ const common = require("@librars/cli-common");
 
 const utils = require("./utils");
 const commands = require("./commands");
-const operations = require("./operations");
 const version = require("./version").version;
 
 /**
@@ -118,7 +117,7 @@ async function createTar(dirpath) {
     const dstDir = common.ensureDataDir();
     const tarFileName = `tar-${common.generateId(true)}`;
 
-    const tarPath = await operations.tarFolder(dirpath, dstDir, tarFileName);
+    const tarPath = await common.filesystem.tarFolder(dirpath, dstDir, tarFileName);
 
     if (path.join(dstDir, `${tarFileName}.tgz`) !== tarPath) {
         throw new Error(`Created tar ${tarPath} was supposed to be in ${dstDir}.`);
@@ -129,7 +128,7 @@ async function createTar(dirpath) {
 
 // eslint-disable-next-line no-unused-vars
 async function untar(tarPath, dstFolder) {
-    const extractedDirPath = await operations.untarFolder(tarPath, dstFolder);
+    const extractedDirPath = await common.filesystem.untarFolder(tarPath, dstFolder);
 
     if (dstFolder !== extractedDirPath) {
         throw new Error(`Extracted content ${extractedDirPath} was supposed to be in ${dstFolder}.`);
