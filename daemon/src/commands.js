@@ -21,6 +21,9 @@ export const COMMAND_COMPILE = "compile";
 /** Unknown command. */
 export const COMMAND_UNKNOWN = "unknown";
 
+/** Wrong formatted command. */
+export const COMMAND_WRONG_FORMAT = "wrong_format";
+
 /** Not-compatible command. */
 export const COMMAND_NOTCOMPATIBLE = "notcompatible";
 
@@ -50,15 +53,22 @@ export function mapCommand(req) {
 export function mapErrorHandlingCommand(req) {
     if (!checkApiVersion(req)) {
         return {
-            error: `API version check failed for request. Request: ${getVersionHeaderValue(req)}, daemon: ${version.COMMUNICATION_API}`,
+            error: `API version check failed for request. Request: ${common.communication.getVersionFromHTTPHeaders(req.headers)}, daemon: ${version.COMMUNICATION_API}`,
             handler: commandHandlers.notcompatible
+        };
+    }
+
+    if (!checkExecId(req)) {
+        return {
+            error: `ExID check failed for request. Invalid ExID: ${common.communication.getExecIdFromHTTPHeaders(req.headers)}`,
+            handler: commandHandlers.COMMAND_WRONG_FORMAT
         };
     }
 }
 
 function checkApiVersion(req) {
-    const v = getVersionHeaderValue(req);
-    const parsedVersion = common.checkVersionFormat(v, false);
+    const versionFromHeaders = common.communication.getVersionFromHTTPHeaders(req.headers);
+    const parsedVersion = common.checkVersionFormat(versionFromHeaders, false);
 
     if (!parsedVersion) {
         return false;
@@ -67,6 +77,12 @@ function checkApiVersion(req) {
     return common.versionsCompatibilityCheck(parsedVersion, version.COMMUNICATION_API) >= 0;
 }
 
-function getVersionHeaderValue(req) {
-    return common.communication.getVersionFromHTTPHeaders(req.headers);
+function checkExecId(req) {
+    const exidFromHeaders = common.communication.getExecIdFromHTTPHeaders(req.headers);
+
+    if (!exidFromHeaders) {
+        return false;
+    }
+
+    return exidFromHeaders.length > 0;
 }

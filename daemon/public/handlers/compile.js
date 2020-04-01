@@ -21,7 +21,7 @@ var commands = require("../commands");
 
 var consts = require("../consts");
 /**
- * Handles a compile request.
+ * Handles the request.
  * 
  * @param {any} req The request object.
  * @param {any} res The response object.
@@ -37,9 +37,11 @@ function handleCompile(req, res) {
     return;
   }
 
+  var exid = common.communication.getExecIdFromHTTPHeaders(req.headers); // Guaranteed to be available
+
   var buffer = "";
   var dstDir = path.join(path.normalize(common.getDataFolder()), common.DIR_NAME);
-  var dstPath = path.join(dstDir, "".concat(consts.TAR_FILE_PREFIX, "-").concat(Math.ceil(Math.random() * 100000), ".tgz"));
+  var dstPath = path.join(dstDir, "".concat(consts.TAR_FILE_PREFIX, "-").concat(exid, ".tgz"));
   req.on("data", data => {
     common.log("Data received: ".concat(data));
     buffer += data;

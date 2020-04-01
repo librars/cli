@@ -3,13 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.handleNotCompatible = handleNotCompatible;
+exports.handleWrongFormat = handleWrongFormat;
 
 /**
- * notcompatible.js
+ * wrongformat.js
  * Andrea Tino - 2020
  * 
- * Handles a non-compatible request.
+ * Handles a request with a wrong format.
  */
 var common = require("@librars/cli-common");
 
@@ -22,9 +22,9 @@ var commands = require("../commands");
  */
 
 
-function handleNotCompatible(req, res) {
-  common.log("Handling command ".concat(commands.COMMAND_NOTCOMPATIBLE, "..."));
-  common.error("Request ".concat(req.method, ", ").concat(req.url, " is not compatible"));
+function handleWrongFormat(req, res) {
+  common.log("Handling command ".concat(commands.COMMAND_WRONG_FORMAT, "..."));
+  common.error("Request ".concat(req, " could not be handled"));
   res.statusCode = common.communication.statusCodes.BAD_REQUEST;
   res.end();
 }

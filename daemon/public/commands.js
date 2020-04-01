@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.mapCommand = mapCommand;
 exports.mapErrorHandlingCommand = mapErrorHandlingCommand;
-exports.COMMAND_NOTCOMPATIBLE = exports.COMMAND_UNKNOWN = exports.COMMAND_COMPILE = void 0;
+exports.COMMAND_NOTCOMPATIBLE = exports.COMMAND_WRONG_FORMAT = exports.COMMAND_UNKNOWN = exports.COMMAND_COMPILE = void 0;
 
 /**
  * commands.js
@@ -29,9 +29,13 @@ var COMMAND_COMPILE = "compile";
 
 exports.COMMAND_COMPILE = COMMAND_COMPILE;
 var COMMAND_UNKNOWN = "unknown";
-/** Not-compatible command. */
+/** Wrong formatted command. */
 
 exports.COMMAND_UNKNOWN = COMMAND_UNKNOWN;
+var COMMAND_WRONG_FORMAT = "wrong_format";
+/** Not-compatible command. */
+
+exports.COMMAND_WRONG_FORMAT = COMMAND_WRONG_FORMAT;
 var COMMAND_NOTCOMPATIBLE = "notcompatible";
 /**
  * Maps the proper command handler to the request.
@@ -63,15 +67,22 @@ function mapCommand(req) {
 function mapErrorHandlingCommand(req) {
   if (!checkApiVersion(req)) {
     return {
-      error: "API version check failed for request. Request: ".concat(getVersionHeaderValue(req), ", daemon: ").concat(version.COMMUNICATION_API),
+      error: "API version check failed for request. Request: ".concat(common.communication.getVersionFromHTTPHeaders(req.headers), ", daemon: ").concat(version.COMMUNICATION_API),
       handler: commandHandlers.notcompatible
+    };
+  }
+
+  if (!checkExecId(req)) {
+    return {
+      error: "ExID check failed for request. Invalid ExID: ".concat(common.communication.getExecIdFromHTTPHeaders(req.headers)),
+      handler: commandHandlers.COMMAND_WRONG_FORMAT
     };
   }
 }
 
 function checkApiVersion(req) {
-  var v = getVersionHeaderValue(req);
-  var parsedVersion = common.checkVersionFormat(v, false);
+  var versionFromHeaders = common.communication.getVersionFromHTTPHeaders(req.headers);
+  var parsedVersion = common.checkVersionFormat(versionFromHeaders, false);
 
   if (!parsedVersion) {
     return false;
@@ -80,6 +91,12 @@ function checkApiVersion(req) {
   return common.versionsCompatibilityCheck(parsedVersion, version.COMMUNICATION_API) >= 0;
 }
 
-function getVersionHeaderValue(req) {
-  return common.communication.getVersionFromHTTPHeaders(req.headers);
+function checkExecId(req) {
+  var exidFromHeaders = common.communication.getExecIdFromHTTPHeaders(req.headers);
+
+  if (!exidFromHeaders) {
+    return false;
+  }
+
+  return exidFromHeaders.length > 0;
 }
