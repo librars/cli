@@ -28,12 +28,22 @@ export function buildCommandUrl(serverinfo, command) {
  * Adds all required HTTP headers.
  * 
  * @param {object} headers The headers object.
+ * @param {string} exid The execution id to assign. If null a new one is generated.
  * @returns {object} The same headers object.
  */
-export function addRequiredHeadersToCommandRequest(headers) {
+export function addRequiredHeadersToCommandRequest(headers, exid) {
     // Version
     common.communication.addVersionHTTPHeaders(headers, version.COMMUNICATION_API);
 
     // Execution ID (ExID)
-    common.communication.addExecIdHTTPHeaders(headers, common.generateId(false));
+    common.communication.addExecIdHTTPHeaders(headers, exid || common.generateId(false));
+}
+
+/**
+ * Generates a new exid.
+ * 
+ * @returns {string} The new ID.
+ */
+export function newCommandExecId() {
+    return common.generateId(false);
 }

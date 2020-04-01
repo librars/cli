@@ -31,6 +31,7 @@ var consts = require("./consts");
 /**
  * Compiles a book.
  * 
+ * @param {string} exid The command execution id. If null a random one is generated.
  * @param {any} serverinfo The server info object.
  * @param {string} dirpath The path to the directory containing the book to compile.
  * @param {boolean} cleanAfter A value indicating whether to clean intermediate resources after the transmission completes.
@@ -39,13 +40,13 @@ var consts = require("./consts");
  */
 
 
-function compile(_x, _x2) {
+function compile(_x, _x2, _x3) {
   return _compile.apply(this, arguments);
 }
 
 function _compile() {
-  _compile = _asyncToGenerator(function* (serverinfo, dirpath) {
-    var cleanAfter = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+  _compile = _asyncToGenerator(function* (exid, serverinfo, dirpath) {
+    var cleanAfter = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
     if (!serverinfo) {
       throw new Error("Argument serverinfo canot be null or undefined");
@@ -64,7 +65,7 @@ function _compile() {
     } // Generate the tar
 
 
-    var tarPath = yield createTar(dirpath);
+    var tarPath = yield createTar(dirpath, exid);
     common.log("Tar created: ".concat(tarPath)); // Base64 encode
 
     var buffer = fs.readFileSync(tarPath);
@@ -83,7 +84,7 @@ function _compile() {
           "Content-Type": "text/plain"
         }
       };
-      commands.addRequiredHeadersToCommandRequest(options.headers); // Handle all necessary headers
+      commands.addRequiredHeadersToCommandRequest(options.headers, exid); // Handle all necessary headers
 
       var commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
       common.log("Initiating transmission to: ".concat(commandUrl));
@@ -130,15 +131,16 @@ function _compile() {
   return _compile.apply(this, arguments);
 }
 
-function createTar(_x3) {
+function createTar(_x4) {
   return _createTar.apply(this, arguments);
 } // eslint-disable-next-line no-unused-vars
 
 
 function _createTar() {
   _createTar = _asyncToGenerator(function* (dirpath) {
+    var exid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     var dstDir = common.ensureDataDir();
-    var tarFileName = "".concat(consts.TAR_FILE_PREFIX, "-").concat(common.generateId(true));
+    var tarFileName = "".concat(consts.TAR_FILE_PREFIX, "-").concat(exid || common.generateId(true));
     var tarPath = yield common.filesystem.tarFolder(dirpath, dstDir, tarFileName);
 
     if (path.join(dstDir, "".concat(tarFileName, ".tgz")) !== tarPath) {
@@ -150,7 +152,7 @@ function _createTar() {
   return _createTar.apply(this, arguments);
 }
 
-function untar(_x4, _x5) {
+function untar(_x5, _x6) {
   return _untar.apply(this, arguments);
 }
 

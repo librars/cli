@@ -18,13 +18,14 @@ const consts = require("./consts");
 /**
  * Compiles a book.
  * 
+ * @param {string} exid The command execution id. If null a random one is generated.
  * @param {any} serverinfo The server info object.
  * @param {string} dirpath The path to the directory containing the book to compile.
  * @param {boolean} cleanAfter A value indicating whether to clean intermediate resources after the transmission completes.
  * @returns {Promise} a promise.
  * @async
  */
-export async function compile(serverinfo, dirpath, cleanAfter = true) {
+export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
     if (!serverinfo) {
         throw new Error("Argument serverinfo canot be null or undefined");
     }
@@ -40,7 +41,7 @@ export async function compile(serverinfo, dirpath, cleanAfter = true) {
     }
 
     // Generate the tar
-    const tarPath = await createTar(dirpath);
+    const tarPath = await createTar(dirpath, exid);
     common.log(`Tar created: ${tarPath}`);
 
     // Base64 encode
@@ -61,7 +62,7 @@ export async function compile(serverinfo, dirpath, cleanAfter = true) {
                 "Content-Type": "text/plain"
             }
         };
-        commands.addRequiredHeadersToCommandRequest(options.headers); // Handle all necessary headers
+        commands.addRequiredHeadersToCommandRequest(options.headers, exid); // Handle all necessary headers
 
         const commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
         common.log(`Initiating transmission to: ${commandUrl}`);
@@ -113,9 +114,9 @@ export async function compile(serverinfo, dirpath, cleanAfter = true) {
     });
 }
 
-async function createTar(dirpath) {
+async function createTar(dirpath, exid = null) {
     const dstDir = common.ensureDataDir();
-    const tarFileName = `${consts.TAR_FILE_PREFIX}-${common.generateId(true)}`;
+    const tarFileName = `${consts.TAR_FILE_PREFIX}-${exid || common.generateId(true)}`;
 
     const tarPath = await common.filesystem.tarFolder(dirpath, dstDir, tarFileName);
 

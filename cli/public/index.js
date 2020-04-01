@@ -48,6 +48,9 @@ if (!config.command) {
   throw new Error("No command provided");
 }
 
+var exid = commands.newCommandExecId();
+common.log("Command EXID: ".concat(exid));
+
 switch (config.command) {
   case commands.COMMAND_COMPILE:
     handleCommand(commands.COMMAND_COMPILE, handleCommandCompile);
@@ -56,7 +59,7 @@ switch (config.command) {
 
 function handleCommandCompile() {
   var argPath = config.noopts[1];
-  compile(serverinfo, argPath, true).then(() => {
+  compile(exid, serverinfo, argPath, true).then(() => {
     common.log("Completed command ".concat(commands.COMMAND_COMPILE));
   }).catch(e => {
     common.error("Command ".concat(commands.COMMAND_COMPILE, " encountered an error: '").concat(e, "'"));
