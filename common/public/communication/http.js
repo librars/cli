@@ -17,7 +17,10 @@ var protocol = require("./protocol");
 
 var statusCodes = {
   /** Bad request. */
-  BAD_REQUEST: 400
+  BAD_REQUEST: 400,
+
+  /** Server error. */
+  SRV_ERROR: 500
 };
 /**
  * Ensures the version headers are added.

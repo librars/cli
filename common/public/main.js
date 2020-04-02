@@ -26,6 +26,8 @@ var communicationProtocol = require("./communication/protocol");
 var communicationHttp = require("./communication/http");
 
 var filesystemArchive = require("./filesystem/archive");
+
+var filesystemIo = require("./filesystem/io");
 /** @see {version.checkVersionFormat} */
 
 
@@ -96,6 +98,12 @@ var filesystem = {
   tarFolder: filesystemArchive.tarFolder,
 
   /** @see {filesystemArchive.untarFolder} */
-  untarFolder: filesystemArchive.untarFolder
+  untarFolder: filesystemArchive.untarFolder,
+
+  /** @see {filesystemIo.deleteFile} */
+  deleteFile: filesystemIo.deleteFile,
+
+  /** @see {filesystemIo.deleteDirectory} */
+  deleteDirectory: filesystemIo.deleteDirectory
 };
 exports.filesystem = filesystem;

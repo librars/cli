@@ -11,7 +11,6 @@ const http = require("http");
 
 const common = require("@librars/cli-common");
 
-const utils = require("./utils");
 const commands = require("./commands");
 const consts = require("./consts");
 
@@ -143,6 +142,6 @@ function clean(tarPath) {
         return;
     }
 
-    utils.deleteFile(tarPath);
+    common.filesystem.deleteFile(tarPath);
     common.log(`File ${tarPath} deleted.`);
 }

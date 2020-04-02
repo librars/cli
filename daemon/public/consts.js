@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TAR_FILE_PREFIX = void 0;
+exports.EXTRACTED_DIR_PREFIX = exports.TAR_FILE_PREFIX = void 0;
 
 /**
  * consts.js
@@ -14,4 +14,8 @@ exports.TAR_FILE_PREFIX = void 0;
 
 /** Prefix to use when naming the archive received from a compile command. */
 var TAR_FILE_PREFIX = "rcv-compile-tar";
+/** Prefix to use when naming the folder hosting the archive's extracted content. */
+
 exports.TAR_FILE_PREFIX = TAR_FILE_PREFIX;
+var EXTRACTED_DIR_PREFIX = "rcv-extracted";
+exports.EXTRACTED_DIR_PREFIX = EXTRACTED_DIR_PREFIX;

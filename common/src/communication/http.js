@@ -11,6 +11,8 @@ const protocol = require("./protocol");
 export const statusCodes = {
     /** Bad request. */
     BAD_REQUEST: 400,
+    /** Server error. */
+    SRV_ERROR: 500,
 };
 
 /**

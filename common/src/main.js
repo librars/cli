@@ -13,6 +13,7 @@ const application = require("./application");
 const communicationProtocol = require("./communication/protocol");
 const communicationHttp = require("./communication/http");
 const filesystemArchive = require("./filesystem/archive");
+const filesystemIo = require("./filesystem/io");
 
 
 
@@ -88,4 +89,9 @@ export const filesystem = {
     tarFolder: filesystemArchive.tarFolder,
     /** @see {filesystemArchive.untarFolder} */
     untarFolder: filesystemArchive.untarFolder,
+
+    /** @see {filesystemIo.deleteFile} */
+    deleteFile: filesystemIo.deleteFile,
+    /** @see {filesystemIo.deleteDirectory} */
+    deleteDirectory: filesystemIo.deleteDirectory,
 };
