@@ -66,6 +66,29 @@ export function mapErrorHandlingCommand(req) {
     }
 }
 
+/**
+ * Adds all required HTTP headers to the response.
+ * 
+ * @param {object} res The response object.
+ * @param {string} exid The execution id to assign. If null a new one is generated.
+ */
+export function addRequiredHeadersToCommandResponse(res, exid) {
+    let headers = {};
+
+    // Version
+    common.communication.addVersionHTTPHeaders(headers, version.COMMUNICATION_API);
+
+    // Execution ID (ExID)
+    common.communication.addExecIdHTTPHeaders(headers, exid || common.generateId(false));
+
+    const keys = Object.keys(headers);
+    for (let i = 0; i < keys.length; i++) {
+        const headerName = keys[i];
+        const headerValue = headers[headerName];
+        res.setHeader(headerName, headerValue);
+    }
+}
+
 function checkApiVersion(req) {
     const versionFromHeaders = common.communication.getVersionFromHTTPHeaders(req.headers);
     const parsedVersion = common.checkVersionFormat(versionFromHeaders, false);

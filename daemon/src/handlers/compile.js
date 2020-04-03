@@ -75,7 +75,6 @@ function onRequestFullyReceived(req, res, reqBody) {
             endResponseWithError(res, err);
             clean();
         }
-
         const compilationArtifactFolder = path.join(extractedDirPath, extractedDirItems[0]);
         if (!fs.statSync(compilationArtifactFolder).isDirectory) {
             common.error("Artifact folder with extracted content should contain only one directory (actual type is not directory)");
@@ -99,12 +98,25 @@ function onRequestFullyReceived(req, res, reqBody) {
             common.log(`Compile artifact tar base64 computed (len: ${base64data.length}): ${base64data}`);
 
             // Send the archive back to the requestor
-            // TODO
+            commands.addRequiredHeadersToCommandResponse(res, exid);
+            res.statusCode = common.communication.statusCodes.OK;
+            res.statusMessage = "Ok";
+            res.setHeader("Content-Type", "text/plain");
 
-            res.write("{'body': 'ok'}");
-            res.end();
+            common.log("Sending response back to client...");
+            res.write(base64data, "utf-8", (err) => {
+                if (err) {
+                    common.error(`An error occurred while trying to send the result back to client: ${err}`);
 
-            clean();
+                    clean();
+                    return;
+                }
+
+                res.end(() => {
+                    common.log("Response successfully transmitted :)");
+                    clean();
+                });
+            });
         }).catch((err) => { // Catch createTar
             endResponseWithError(res, err);
             clean();
@@ -163,8 +175,10 @@ async function untar(tarPath, dstFolder) {
 }
 
 function endResponseWithError(res, err) {
-    common.error(`An error occurred while processing the request: ${err}`);
+    const errorMsg = `An error occurred while processing the request: ${err}`;
+    common.error(errorMsg);
 
     res.statusCode = common.communication.statusCodes.SRV_ERROR;
+    res.statusMessage = errorMsg;
     res.end();
 }

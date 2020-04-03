@@ -100,11 +100,24 @@ function onRequestFullyReceived(req, res, reqBody) {
       var buffer = fs.readFileSync(tarPath);
       var base64data = buffer.toString("base64");
       common.log("Compile artifact tar base64 computed (len: ".concat(base64data.length, "): ").concat(base64data)); // Send the archive back to the requestor
-      // TODO
 
-      res.write("{'body': 'ok'}");
-      res.end();
-      clean();
+      commands.addRequiredHeadersToCommandResponse(res, exid);
+      res.statusCode = common.communication.statusCodes.OK;
+      res.statusMessage = "Ok";
+      res.setHeader("Content-Type", "text/plain");
+      common.log("Sending response back to client...");
+      res.write(base64data, "utf-8", err => {
+        if (err) {
+          common.error("An error occurred while trying to send the result back to client: ".concat(err));
+          clean();
+          return;
+        }
+
+        res.end(() => {
+          common.log("Response successfully transmitted :)");
+          clean();
+        });
+      });
     }).catch(err => {
       // Catch createTar
       endResponseWithError(res, err);
@@ -179,7 +192,9 @@ function _untar() {
 }
 
 function endResponseWithError(res, err) {
-  common.error("An error occurred while processing the request: ".concat(err));
+  var errorMsg = "An error occurred while processing the request: ".concat(err);
+  common.error(errorMsg);
   res.statusCode = common.communication.statusCodes.SRV_ERROR;
+  res.statusMessage = errorMsg;
   res.end();
 }

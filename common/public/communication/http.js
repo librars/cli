@@ -16,6 +16,9 @@ var protocol = require("./protocol");
 
 
 var statusCodes = {
+  /** All good. */
+  OK: 200,
+
   /** Bad request. */
   BAD_REQUEST: 400,
 

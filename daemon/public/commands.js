@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.mapCommand = mapCommand;
 exports.mapErrorHandlingCommand = mapErrorHandlingCommand;
+exports.addRequiredHeadersToCommandResponse = addRequiredHeadersToCommandResponse;
 exports.COMMAND_NOTCOMPATIBLE = exports.COMMAND_WRONG_FORMAT = exports.COMMAND_UNKNOWN = exports.COMMAND_COMPILE = void 0;
 
 /**
@@ -77,6 +78,28 @@ function mapErrorHandlingCommand(req) {
       error: "ExID check failed for request. Invalid ExID: ".concat(common.communication.getExecIdFromHTTPHeaders(req.headers)),
       handler: commandHandlers.COMMAND_WRONG_FORMAT
     };
+  }
+}
+/**
+ * Adds all required HTTP headers to the response.
+ * 
+ * @param {object} res The response object.
+ * @param {string} exid The execution id to assign. If null a new one is generated.
+ */
+
+
+function addRequiredHeadersToCommandResponse(res, exid) {
+  var headers = {}; // Version
+
+  common.communication.addVersionHTTPHeaders(headers, version.COMMUNICATION_API); // Execution ID (ExID)
+
+  common.communication.addExecIdHTTPHeaders(headers, exid || common.generateId(false));
+  var keys = Object.keys(headers);
+
+  for (var i = 0; i < keys.length; i++) {
+    var headerName = keys[i];
+    var headerValue = headers[headerName];
+    res.setHeader(headerName, headerValue);
   }
 }
 

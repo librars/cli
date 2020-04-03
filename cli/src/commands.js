@@ -29,7 +29,6 @@ export function buildCommandUrl(serverinfo, command) {
  * 
  * @param {object} headers The headers object.
  * @param {string} exid The execution id to assign. If null a new one is generated.
- * @returns {object} The same headers object.
  */
 export function addRequiredHeadersToCommandRequest(headers, exid) {
     // Version

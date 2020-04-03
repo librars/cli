@@ -87,15 +87,45 @@ function _compile() {
       var commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
       common.log("Initiating transmission to: ".concat(commandUrl));
       var clientRequest = http.request(options, res => {
-        common.log("STATUS: ".concat(res.statusCode));
-        common.log("HEADERS: ".concat(JSON.stringify(res.headers))); // res.setEncoding('utf8');
+        common.log("Response received. STATUS: ".concat(res.statusCode, ", HEADERS: ").concat(JSON.stringify(res.headers))); // Check status code
+
+        if (res.statusCode != common.communication.statusCodes.OK) {
+          common.error("Received server non-successful response (".concat(res.statusCode, "): '").concat(res.statusMessage, "'"));
+
+          if (cleanAfter) {
+            clean(tarPath);
+          }
+
+          reject(res.statusMessage);
+          return;
+        } // Check headers and verify same ExID
+
+
+        if (!checkHeadersFromServerResponse(res, exid)) {
+          var errorMsg = "ExID mismatch when receiving response from server. Expected: ".concat(exid, ", got: ").concat(common.communication.getExecIdFromHTTPHeaders(res.getHeaders()));
+          common.error(errorMsg);
+
+          if (cleanAfter) {
+            clean(tarPath);
+          }
+
+          reject(errorMsg);
+          return;
+        }
 
         var data = "";
         res.on("data", chunk => {
           data += chunk;
         });
         res.on("end", () => {
-          common.log(data); // Cleanup on finalize
+          // Waiting to receive the response
+          common.log("Data fully received from server: ".concat(data)); // Deserialize the Base64 stream and write to file
+          // TODO
+          // Extract the archive and move content into a created folder
+          // TODO
+          // Completion
+
+          common.log("Command ".concat(commands.COMMAND_COMPILE, " execution session (").concat(exid, ") completed")); // Cleanup on finalize
 
           if (cleanAfter) {
             clean(tarPath);
@@ -116,6 +146,7 @@ function _compile() {
       clientRequest.write(base64data, "utf-8", err => {
         if (err) {
           common.error("Error while sending request: ".concat(err));
+          reject(err);
           return;
         }
 
@@ -124,9 +155,19 @@ function _compile() {
           common.log("Awaiting response...");
         });
       });
-    });
+    }); // Promise
   });
   return _compile.apply(this, arguments);
+}
+
+function checkHeadersFromServerResponse(res, exid) {
+  var resHeaders = res.headers;
+
+  if (common.communication.getExecIdFromHTTPHeaders(resHeaders) !== exid) {
+    return false;
+  }
+
+  return true;
 }
 
 function createTar(_x4) {
@@ -168,10 +209,8 @@ function _untar() {
 }
 
 function clean(tarPath) {
-  if (!fs.existsSync(tarPath)) {
-    return;
+  if (tarPath && fs.existsSync(tarPath)) {
+    common.filesystem.deleteFile(tarPath);
+    common.log("File ".concat(tarPath, " deleted."));
   }
-
-  common.filesystem.deleteFile(tarPath);
-  common.log("File ".concat(tarPath, " deleted."));
 }

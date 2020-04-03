@@ -9,6 +9,8 @@ const protocol = require("./protocol");
 
 /** HTTP status codes. */
 export const statusCodes = {
+    /** All good. */
+    OK: 200,
     /** Bad request. */
     BAD_REQUEST: 400,
     /** Server error. */

@@ -66,10 +66,33 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
         const commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
         common.log(`Initiating transmission to: ${commandUrl}`);
 
-        const clientRequest = http.request(options, res => {
-            common.log(`STATUS: ${res.statusCode}`);
-            common.log(`HEADERS: ${JSON.stringify(res.headers)}`);
-            // res.setEncoding('utf8');
+        const clientRequest = http.request(options, (res) => {
+            common.log(`Response received. STATUS: ${res.statusCode}, HEADERS: ${JSON.stringify(res.headers)}`);
+
+            // Check status code
+            if (res.statusCode != common.communication.statusCodes.OK) {
+                common.error(`Received server non-successful response (${res.statusCode}): '${res.statusMessage}'`);
+
+                if (cleanAfter) {
+                    clean(tarPath);
+                }
+
+                reject(res.statusMessage);
+                return;
+            }
+
+            // Check headers and verify same ExID
+            if (!checkHeadersFromServerResponse(res, exid)) {
+                const errorMsg = `ExID mismatch when receiving response from server. Expected: ${exid}, got: ${common.communication.getExecIdFromHTTPHeaders(res.getHeaders())}`;
+                common.error(errorMsg);
+
+                if (cleanAfter) {
+                    clean(tarPath);
+                }
+
+                reject(errorMsg);
+                return;
+            }
 
             let data = "";
 
@@ -77,8 +100,17 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
                 data += chunk;
             });
 
-            res.on("end", () => {
-                common.log(data);
+            res.on("end", () => { // Waiting to receive the response
+                common.log(`Data fully received from server: ${data}`);
+
+                // Deserialize the Base64 stream and write to file
+                // TODO
+
+                // Extract the archive and move content into a created folder
+                // TODO
+
+                // Completion
+                common.log(`Command ${commands.COMMAND_COMPILE} execution session (${exid}) completed`);
 
                 // Cleanup on finalize
                 if (cleanAfter) {
@@ -102,6 +134,8 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
         clientRequest.write(base64data, "utf-8", (err) => {
             if (err) {
                 common.error(`Error while sending request: ${err}`);
+
+                reject(err);
                 return;
             }
 
@@ -110,7 +144,17 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
                 common.log("Awaiting response...");
             });
         });
-    });
+    }); // Promise
+}
+
+function checkHeadersFromServerResponse(res, exid) {
+    const resHeaders = res.headers;
+
+    if (common.communication.getExecIdFromHTTPHeaders(resHeaders) !== exid) {
+        return false;
+    }
+
+    return true;
 }
 
 async function createTar(dirpath, exid = null) {
@@ -138,10 +182,8 @@ async function untar(tarPath, dstFolder) {
 }
 
 function clean(tarPath) {
-    if (!fs.existsSync(tarPath)) {
-        return;
+    if (tarPath && fs.existsSync(tarPath)) {
+        common.filesystem.deleteFile(tarPath);
+        common.log(`File ${tarPath} deleted.`);
     }
-
-    common.filesystem.deleteFile(tarPath);
-    common.log(`File ${tarPath} deleted.`);
 }
