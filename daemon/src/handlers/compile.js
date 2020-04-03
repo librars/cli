@@ -67,16 +67,49 @@ function onRequestFullyReceived(req, res, reqBody) {
 
     // Extract the archive (this will also uncomporess)
     untar(dstPath, extractedDirPath).then((extractedDirPath) => {
+        // Check that the created artifact folder has only one folder inside
+        const extractedDirItems = fs.readdirSync(extractedDirPath);
+        if (extractedDirItems.length !== 1) {
+            common.error(`Artifact folder with extracted content should contain only one entry, found ${extractedDirItems.length}`);
+
+            endResponseWithError(res, err);
+            clean();
+        }
+
+        const compilationArtifactFolder = path.join(extractedDirPath, extractedDirItems[0]);
+        if (!fs.statSync(compilationArtifactFolder).isDirectory) {
+            common.error("Artifact folder with extracted content should contain only one directory (actual type is not directory)");
+
+            endResponseWithError(res, err);
+            clean();
+        }
+
         common.log(`Artifacts extracted into: ${extractedDirPath}`);
 
         // Compile content
         // TODO
 
-        res.write("{'body': 'ok'}");
-        res.end();
+        // Archive folder with resulted compilation artifacts
+        const directoryToTar = compilationArtifactFolder;
+        createTar(directoryToTar, extractedDirPath, exid).then((tarPath) => {
+            common.log(`Compile artifact tar created: ${tarPath}`);
+            // Base64 encode
+            const buffer = fs.readFileSync(tarPath);
+            const base64data = buffer.toString("base64");
+            common.log(`Compile artifact tar base64 computed (len: ${base64data.length}): ${base64data}`);
 
-        clean();
-    }).catch((err) => {
+            // Send the archive back to the requestor
+            // TODO
+
+            res.write("{'body': 'ok'}");
+            res.end();
+
+            clean();
+        }).catch((err) => { // Catch createTar
+            endResponseWithError(res, err);
+            clean();
+        });
+    }).catch((err) => { // Catch untar
         endResponseWithError(res, err);
         clean();
     });
@@ -92,6 +125,8 @@ function clean(tarPath, extractedDirPath) {
     }
 
     if (fs.existsSync(extractedDirPath)) {
+        // Since this folder also contains the tar created to send back
+        // to the client, that resource will be cleared too
         common.filesystem.deleteDirectory(extractedDirPath);
     }
 }
@@ -105,10 +140,8 @@ function checkRequest(req) {
     return true;
 }
 
-// eslint-disable-next-line no-unused-vars
-async function createTar(dirpath, exid = null) {
-    const dstDir = common.ensureDataDir();
-    const tarFileName = `${consts.TAR_FILE_PREFIX}-${exid || common.generateId(true)}`;
+async function createTar(dirpath, dstDir, exid = null) {
+    const tarFileName = `${consts.COMPILE_ARTIFACTS_TAR_FILE_PREFIX}-${exid || common.generateId(true)}`;
 
     const tarPath = await common.filesystem.tarFolder(dirpath, dstDir, tarFileName);
 
