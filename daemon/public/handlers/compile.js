@@ -146,7 +146,7 @@ function clean(tarPath, extractedDirPath) {
     common.filesystem.deleteDirectory(extractedDirPath).then(() => {
       common.log("Directory ".concat(extractedDirPath, " deleted"));
     }).catch(err => {
-      common.error("Error while cleaning up. Could not remove directory ".concat(extractedDirPath, ": '").concat(err, "'"));
+      common.warn("Error while cleaning up. Could not remove directory ".concat(extractedDirPath, ": '").concat(err, "'"));
     });
   }
 }
