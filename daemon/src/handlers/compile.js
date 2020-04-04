@@ -12,6 +12,7 @@ const common = require("@librars/cli-common");
 
 const commands = require("../commands");
 const consts = require("../consts");
+const api = require("../api");
 
 // Configuration
 const cleanAfter = true;
@@ -83,44 +84,50 @@ function onRequestFullyReceived(req, res, reqBody) {
             clean(dstPath, extractedDirPath);
         }
 
-        common.log(`Artifacts extracted into: ${extractedDirPath}`);
+        common.log(`Artifacts extracted into: '${extractedDirPath}'`);
 
         // Compile content
-        // TODO
+        common.log(`Compiling '${compilationArtifactFolder}'...`);
+        api.invoke(api.API.compile, compilationArtifactFolder).then((msg) => {
+            common.log(`Compilation completed: '${msg}'`);
 
-        // Archive folder with resulted compilation artifacts
-        const directoryToTar = compilationArtifactFolder;
-        createTar(directoryToTar, extractedDirPath, exid).then((tarPath) => {
-            common.log(`Compile artifact tar created: ${tarPath}`);
-            // Base64 encode
-            const buffer = fs.readFileSync(tarPath);
-            const base64data = buffer.toString("base64");
-            common.log(`Compile artifact tar base64 computed (len: ${base64data.length}): ${base64data}`);
+            // Archive folder with resulted compilation artifacts
+            const directoryToTar = compilationArtifactFolder;
+            createTar(directoryToTar, extractedDirPath, exid).then((tarPath) => {
+                common.log(`Compile artifact tar created: ${tarPath}`);
+                // Base64 encode
+                const buffer = fs.readFileSync(tarPath);
+                const base64data = buffer.toString("base64");
+                common.log(`Compile artifact tar base64 computed (len: ${base64data.length}): ${base64data}`);
 
-            // Send the archive back to the requestor
-            commands.addRequiredHeadersToCommandResponse(res, exid);
-            res.statusCode = common.communication.statusCodes.OK;
-            res.statusMessage = "Ok";
-            res.setHeader("Content-Type", "text/plain");
+                // Send the archive back to the requestor
+                commands.addRequiredHeadersToCommandResponse(res, exid);
+                res.statusCode = common.communication.statusCodes.OK;
+                res.statusMessage = "Ok";
+                res.setHeader("Content-Type", "text/plain");
 
-            common.log("Sending response back to client...");
-            res.write(base64data, "utf-8", (err) => {
-                if (err) {
-                    common.error(`An error occurred while trying to send the result back to client: ${err}`);
+                common.log("Sending response back to client...");
+                res.write(base64data, "utf-8", (err) => {
+                    if (err) {
+                        common.error(`An error occurred while trying to send the result back to client: ${err}`);
 
-                    clean(dstPath, extractedDirPath);
-                    return;
-                }
+                        clean(dstPath, extractedDirPath);
+                        return;
+                    }
 
-                res.end(() => {
-                    common.log("Response successfully transmitted :)");
-                    clean(dstPath, extractedDirPath);
+                    res.end(() => {
+                        common.log("Response successfully transmitted :)");
+                        clean(dstPath, extractedDirPath);
+                    });
                 });
+            }).catch((err) => { // Catch createTar
+                endResponseWithError(res, err);
+                clean(dstPath, extractedDirPath);
             });
-        }).catch((err) => { // Catch createTar
+        }).catch((err) => { // Catch API invocation
             endResponseWithError(res, err);
             clean(dstPath, extractedDirPath);
-        });
+        }); // API invocation
     }).catch((err) => { // Catch untar
         endResponseWithError(res, err);
         clean(dstPath, extractedDirPath);

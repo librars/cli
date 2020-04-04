@@ -5,7 +5,7 @@
  * Constants.
  */
 
-/** Daemon config file name. */
+/** Client config file name. */
 export const CONFIG_FILE_NAME = "cli.config.json";
 
 /** Prefix to use when naming the archive generated when compiling a folder. */

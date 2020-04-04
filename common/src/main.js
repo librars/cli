@@ -60,6 +60,9 @@ export const getDataFolder = application.getDataFolder;
 /** @see {application.ensureDataDir} */
 export const ensureDataDir = application.ensureDataDir;
 
+/** @see {application.getContentFromFileInDataFolder} */
+export const getContentFromFileInDataFolder = application.getContentFromFileInDataFolder;
+
 
 
 

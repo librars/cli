@@ -17,7 +17,7 @@ const common = require("@librars/cli-common");
 
 const commands = require("./commands");
 const compile = require("./compile").compile;
-const serverconfig = require("./serverconfig");
+const serverconfig = require("./config");
 
 const args = fetchArgs();
 const config = {

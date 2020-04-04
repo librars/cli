@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.filesystem = exports.communication = exports.ensureDataDir = exports.getDataFolder = exports.DIR_NAME = exports.DAEMON_PORT = exports.generateId = exports.error = exports.warn = exports.log = exports.versionsCompatibilityCheck = exports.checkVersionFormat = void 0;
+exports.filesystem = exports.communication = exports.getContentFromFileInDataFolder = exports.ensureDataDir = exports.getDataFolder = exports.DIR_NAME = exports.DAEMON_PORT = exports.generateId = exports.error = exports.warn = exports.log = exports.versionsCompatibilityCheck = exports.checkVersionFormat = void 0;
 
 /**
  * main.js
@@ -68,9 +68,13 @@ var getDataFolder = application.getDataFolder;
 
 exports.getDataFolder = getDataFolder;
 var ensureDataDir = application.ensureDataDir;
-/** The communication namespace. */
+/** @see {application.getContentFromFileInDataFolder} */
 
 exports.ensureDataDir = ensureDataDir;
+var getContentFromFileInDataFolder = application.getContentFromFileInDataFolder;
+/** The communication namespace. */
+
+exports.getContentFromFileInDataFolder = getContentFromFileInDataFolder;
 var communication = {
   /** @see {communicationProtocol.VERSION_HEADER_NAME} */
   VERSION_HEADER_NAME: communicationProtocol.VERSION_HEADER_NAME,

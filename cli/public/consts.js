@@ -12,7 +12,7 @@ exports.USR_EXTRACTION_DIR_COMPILE_PREFIX = exports.RCV_TAR_FILE_PREFIX = export
  * Constants.
  */
 
-/** Daemon config file name. */
+/** Client config file name. */
 var CONFIG_FILE_NAME = "cli.config.json";
 /** Prefix to use when naming the archive generated when compiling a folder. */
 

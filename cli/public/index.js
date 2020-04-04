@@ -20,7 +20,7 @@ var commands = require("./commands");
 
 var compile = require("./compile").compile;
 
-var serverconfig = require("./serverconfig");
+var serverconfig = require("./config");
 
 var args = fetchArgs();
 var config = {
