@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TAR_FILE_PREFIX = exports.CONFIG_FILE_NAME = void 0;
+exports.RCV_TAR_FILE_PREFIX = exports.TAR_FILE_PREFIX = exports.CONFIG_FILE_NAME = void 0;
 
 /**
  * consts.js
@@ -18,4 +18,8 @@ var CONFIG_FILE_NAME = "cli.config.json";
 
 exports.CONFIG_FILE_NAME = CONFIG_FILE_NAME;
 var TAR_FILE_PREFIX = "compile-tar";
+/** Prefix to use when naming the result archive received from server. */
+
 exports.TAR_FILE_PREFIX = TAR_FILE_PREFIX;
+var RCV_TAR_FILE_PREFIX = "rcv-result-tar";
+exports.RCV_TAR_FILE_PREFIX = RCV_TAR_FILE_PREFIX;

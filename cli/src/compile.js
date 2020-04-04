@@ -103,8 +103,9 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
             res.on("end", () => { // Waiting to receive the response
                 common.log(`Data fully received from server: ${data}`);
 
-                // Deserialize the Base64 stream and write to file
-                // TODO
+                // Deserialize and save received archive
+                const resultTarPath = deserializeAndSaveBase64String(data, `${consts.RCV_TAR_FILE_PREFIX}-${exid}.tgz`);
+                common.log(`Server result archive written into: ${resultTarPath}`);
 
                 // Extract the archive and move content into a created folder
                 // TODO
@@ -155,6 +156,15 @@ function checkHeadersFromServerResponse(res, exid) {
     }
 
     return true;
+}
+
+function deserializeAndSaveBase64String(data, filename) {
+    const dstDir = common.ensureDataDir();
+    const dstPath = path.join(dstDir, filename);
+
+    fs.writeFileSync(dstPath, Buffer.from(data, "base64"), "base64");
+    
+    return dstPath;
 }
 
 async function createTar(dirpath, exid = null) {

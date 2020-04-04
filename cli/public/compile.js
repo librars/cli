@@ -119,9 +119,10 @@ function _compile() {
         });
         res.on("end", () => {
           // Waiting to receive the response
-          common.log("Data fully received from server: ".concat(data)); // Deserialize the Base64 stream and write to file
-          // TODO
-          // Extract the archive and move content into a created folder
+          common.log("Data fully received from server: ".concat(data)); // Deserialize and save received archive
+
+          var resultTarPath = deserializeAndSaveBase64String(data, "".concat(consts.RCV_TAR_FILE_PREFIX, "-").concat(exid, ".tgz"));
+          common.log("Server result archive written into: ".concat(resultTarPath)); // Extract the archive and move content into a created folder
           // TODO
           // Completion
 
@@ -168,6 +169,13 @@ function checkHeadersFromServerResponse(res, exid) {
   }
 
   return true;
+}
+
+function deserializeAndSaveBase64String(data, filename) {
+  var dstDir = common.ensureDataDir();
+  var dstPath = path.join(dstDir, filename);
+  fs.writeFileSync(dstPath, Buffer.from(data, "base64"), "base64");
+  return dstPath;
 }
 
 function createTar(_x4) {

@@ -63,7 +63,7 @@ function onRequestFullyReceived(req, res, reqBody) {
   var dstPath = path.join(dstDir, "".concat(consts.TAR_FILE_PREFIX, "-").concat(exid, ".tgz")); // Path where to save the received tar
 
   common.log("Request has been successfully received");
-  common.log("Request body (len: ".concat(reqBody.length, "): ").concat(reqBody.substring(0, 100)).concat(reqBody.length > 100 ? "..." : "")); // Save the received archive
+  common.log("Request body (len: ".concat(reqBody.length, "): ").concat(reqBody.substring(0, 100)).concat(reqBody.length > 100 ? "..." : "")); // Decode and save the received archive
 
   fs.writeFileSync(dstPath, Buffer.from(reqBody, "base64"), "base64");
   common.log("Archive written into: ".concat(dstPath)); // Create a new directory to host the extracted content of the archive

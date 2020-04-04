@@ -57,7 +57,7 @@ function onRequestFullyReceived(req, res, reqBody) {
     common.log("Request has been successfully received");
     common.log(`Request body (len: ${reqBody.length}): ${reqBody.substring(0, 100)}${reqBody.length > 100 ? "..." : ""}`);
 
-    // Save the received archive
+    // Decode and save the received archive
     fs.writeFileSync(dstPath, Buffer.from(reqBody, "base64"), "base64");
     common.log(`Archive written into: ${dstPath}`);
 
