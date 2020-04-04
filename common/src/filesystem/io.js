@@ -25,11 +25,21 @@ export function deleteFile(filepath) {
  * Safely deletes a direcory.
  * 
  * @param {string} dirpath Path to the directory to delete.
+ * @async
  */
-export function deleteDirectory(dirpath) {
+export async function deleteDirectory(dirpath) {
     if (!fs.existsSync(dirpath) || !fs.statSync(dirpath).isDirectory()) {
         return;
     }
 
-    rimraf.sync(dirpath);
+    return new Promise((resolve, reject) => {
+        rimraf(dirpath, (err) => {
+            if (!err) {
+                reject(err);
+                return;
+            }
+
+            resolve();
+        });
+    });
 }

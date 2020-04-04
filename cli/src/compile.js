@@ -66,7 +66,7 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
         const commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
         common.log(`Initiating transmission to: ${commandUrl}`);
 
-        const clientRequest = http.request(options, (res) => {
+        const clientRequest = http.request(options, (res) => { // Response handler
             common.log(`Response received. STATUS: ${res.statusCode}, HEADERS: ${JSON.stringify(res.headers)}`);
 
             // Check status code
@@ -108,19 +108,29 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
                 common.log(`Server result archive written into: ${resultTarPath}`);
 
                 // Extract the archive and move content into a created folder
-                // TODO
+                serveResultArchiveToUser(dirpath, resultTarPath, exid).then((extractedDirPath) => {
+                    common.log(`Command result copied into: ${extractedDirPath}`);
 
-                // Completion
-                common.log(`Command ${commands.COMMAND_COMPILE} execution session (${exid}) completed`);
+                    // Completion
+                    common.log(`Command ${commands.COMMAND_COMPILE} execution session (${exid}) completed :)`);
 
-                // Cleanup on finalize
-                if (cleanAfter) {
-                    clean(tarPath);
-                }
+                    // Cleanup on finalize
+                    if (cleanAfter) {
+                        clean(tarPath, resultTarPath);
+                    }
 
-                resolve(); // Resolve only when receiving the response
-            });
-        });
+                    resolve(); // Resolve only when receiving the response
+                }).catch((err) => {
+                    common.error(`An error occurred while extracting received content from server: ${err}`);
+
+                    if (cleanAfter) {
+                        clean(tarPath, resultTarPath);
+                    }
+
+                    reject(err);
+                }); // Catch serveResultArchiveToUser
+            }); // On end response
+        }); // Callback http request
 
         clientRequest.on("error", (err) => {
             // Cleanup upon error
@@ -146,6 +156,19 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
             });
         });
     }); // Promise
+}
+
+async function serveResultArchiveToUser(userDirPath, tarPath, exid) {
+    let userExtractionDir = path.dirname(userDirPath);
+    if (!fs.existsSync(userExtractionDir)) {
+        common.warn(`Could not extract result into ${userExtractionDir}, will extract into data folder instead`);
+        userExtractionDir = common.ensureDataDir();
+    }
+    const userExtractionPath = path.join(userExtractionDir, `${consts.USR_EXTRACTION_DIR_COMPILE_PREFIX}-${exid}`);
+
+    fs.mkdirSync(userExtractionPath);
+
+    return untar(tarPath, userExtractionPath);
 }
 
 function checkHeadersFromServerResponse(res, exid) {
@@ -180,7 +203,6 @@ async function createTar(dirpath, exid = null) {
     return tarPath;
 }
 
-// eslint-disable-next-line no-unused-vars
 async function untar(tarPath, dstFolder) {
     const extractedDirPath = await common.filesystem.untarFolder(tarPath, dstFolder);
 
@@ -191,9 +213,14 @@ async function untar(tarPath, dstFolder) {
     return extractedDirPath;
 }
 
-function clean(tarPath) {
-    if (tarPath && fs.existsSync(tarPath)) {
-        common.filesystem.deleteFile(tarPath);
-        common.log(`File ${tarPath} deleted.`);
-    }
+function clean(tarPath, resultTarPath) {
+    const deleteFile = (p) => {
+        if (p && fs.existsSync(p)) {
+            common.filesystem.deleteFile(p);
+            common.log(`File ${p} deleted.`);
+        }
+    };
+
+    deleteFile(tarPath);
+    deleteFile(resultTarPath);
 }

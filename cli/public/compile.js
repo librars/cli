@@ -87,6 +87,7 @@ function _compile() {
       var commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
       common.log("Initiating transmission to: ".concat(commandUrl));
       var clientRequest = http.request(options, res => {
+        // Response handler
         common.log("Response received. STATUS: ".concat(res.statusCode, ", HEADERS: ").concat(JSON.stringify(res.headers))); // Check status code
 
         if (res.statusCode != common.communication.statusCodes.OK) {
@@ -123,18 +124,29 @@ function _compile() {
 
           var resultTarPath = deserializeAndSaveBase64String(data, "".concat(consts.RCV_TAR_FILE_PREFIX, "-").concat(exid, ".tgz"));
           common.log("Server result archive written into: ".concat(resultTarPath)); // Extract the archive and move content into a created folder
-          // TODO
-          // Completion
 
-          common.log("Command ".concat(commands.COMMAND_COMPILE, " execution session (").concat(exid, ") completed")); // Cleanup on finalize
+          serveResultArchiveToUser(dirpath, resultTarPath, exid).then(extractedDirPath => {
+            common.log("Command result copied into: ".concat(extractedDirPath)); // Completion
 
-          if (cleanAfter) {
-            clean(tarPath);
-          }
+            common.log("Command ".concat(commands.COMMAND_COMPILE, " execution session (").concat(exid, ") completed :)")); // Cleanup on finalize
 
-          resolve(); // Resolve only when receiving the response
-        });
-      });
+            if (cleanAfter) {
+              clean(tarPath, resultTarPath);
+            }
+
+            resolve(); // Resolve only when receiving the response
+          }).catch(err => {
+            common.error("An error occurred while extracting received content from server: ".concat(err));
+
+            if (cleanAfter) {
+              clean(tarPath, resultTarPath);
+            }
+
+            reject(err);
+          }); // Catch serveResultArchiveToUser
+        }); // On end response
+      }); // Callback http request
+
       clientRequest.on("error", err => {
         // Cleanup upon error
         if (cleanAfter) {
@@ -161,6 +173,26 @@ function _compile() {
   return _compile.apply(this, arguments);
 }
 
+function serveResultArchiveToUser(_x4, _x5, _x6) {
+  return _serveResultArchiveToUser.apply(this, arguments);
+}
+
+function _serveResultArchiveToUser() {
+  _serveResultArchiveToUser = _asyncToGenerator(function* (userDirPath, tarPath, exid) {
+    var userExtractionDir = path.dirname(userDirPath);
+
+    if (!fs.existsSync(userExtractionDir)) {
+      common.warn("Could not extract result into ".concat(userExtractionDir, ", will extract into data folder instead"));
+      userExtractionDir = common.ensureDataDir();
+    }
+
+    var userExtractionPath = path.join(userExtractionDir, "".concat(consts.USR_EXTRACTION_DIR_COMPILE_PREFIX, "-").concat(exid));
+    fs.mkdirSync(userExtractionPath);
+    return untar(tarPath, userExtractionPath);
+  });
+  return _serveResultArchiveToUser.apply(this, arguments);
+}
+
 function checkHeadersFromServerResponse(res, exid) {
   var resHeaders = res.headers;
 
@@ -178,10 +210,9 @@ function deserializeAndSaveBase64String(data, filename) {
   return dstPath;
 }
 
-function createTar(_x4) {
+function createTar(_x7) {
   return _createTar.apply(this, arguments);
-} // eslint-disable-next-line no-unused-vars
-
+}
 
 function _createTar() {
   _createTar = _asyncToGenerator(function* (dirpath) {
@@ -199,7 +230,7 @@ function _createTar() {
   return _createTar.apply(this, arguments);
 }
 
-function untar(_x5, _x6) {
+function untar(_x8, _x9) {
   return _untar.apply(this, arguments);
 }
 
@@ -216,9 +247,14 @@ function _untar() {
   return _untar.apply(this, arguments);
 }
 
-function clean(tarPath) {
-  if (tarPath && fs.existsSync(tarPath)) {
-    common.filesystem.deleteFile(tarPath);
-    common.log("File ".concat(tarPath, " deleted."));
-  }
+function clean(tarPath, resultTarPath) {
+  var deleteFile = p => {
+    if (p && fs.existsSync(p)) {
+      common.filesystem.deleteFile(p);
+      common.log("File ".concat(p, " deleted."));
+    }
+  };
+
+  deleteFile(tarPath);
+  deleteFile(resultTarPath);
 }

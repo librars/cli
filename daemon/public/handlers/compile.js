@@ -78,7 +78,7 @@ function onRequestFullyReceived(req, res, reqBody) {
     if (extractedDirItems.length !== 1) {
       common.error("Artifact folder with extracted content should contain only one entry, found ".concat(extractedDirItems.length));
       endResponseWithError(res, err);
-      clean();
+      clean(dstPath, extractedDirPath);
     }
 
     var compilationArtifactFolder = path.join(extractedDirPath, extractedDirItems[0]);
@@ -86,7 +86,7 @@ function onRequestFullyReceived(req, res, reqBody) {
     if (!fs.statSync(compilationArtifactFolder).isDirectory) {
       common.error("Artifact folder with extracted content should contain only one directory (actual type is not directory)");
       endResponseWithError(res, err);
-      clean();
+      clean(dstPath, extractedDirPath);
     }
 
     common.log("Artifacts extracted into: ".concat(extractedDirPath)); // Compile content
@@ -109,24 +109,24 @@ function onRequestFullyReceived(req, res, reqBody) {
       res.write(base64data, "utf-8", err => {
         if (err) {
           common.error("An error occurred while trying to send the result back to client: ".concat(err));
-          clean();
+          clean(dstPath, extractedDirPath);
           return;
         }
 
         res.end(() => {
           common.log("Response successfully transmitted :)");
-          clean();
+          clean(dstPath, extractedDirPath);
         });
       });
     }).catch(err => {
       // Catch createTar
       endResponseWithError(res, err);
-      clean();
+      clean(dstPath, extractedDirPath);
     });
   }).catch(err => {
     // Catch untar
     endResponseWithError(res, err);
-    clean();
+    clean(dstPath, extractedDirPath);
   });
 }
 
@@ -135,14 +135,19 @@ function clean(tarPath, extractedDirPath) {
     return;
   }
 
-  if (fs.existsSync(tarPath)) {
+  if (tarPath && fs.existsSync(tarPath)) {
     common.filesystem.deleteFile(tarPath);
+    common.log("File ".concat(tarPath, " deleted"));
   }
 
-  if (fs.existsSync(extractedDirPath)) {
+  if (extractedDirPath && fs.existsSync(extractedDirPath)) {
     // Since this folder also contains the tar created to send back
     // to the client, that resource will be cleared too
-    common.filesystem.deleteDirectory(extractedDirPath);
+    common.filesystem.deleteDirectory(extractedDirPath).then(() => {
+      common.log("Directory ".concat(extractedDirPath, " deleted"));
+    }).catch(err => {
+      common.error("Error while cleaning up. Could not remove directory ".concat(extractedDirPath, ": '").concat(err, "'"));
+    });
   }
 }
 

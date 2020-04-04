@@ -13,3 +13,6 @@ export const TAR_FILE_PREFIX = "compile-tar";
 
 /** Prefix to use when naming the result archive received from server. */
 export const RCV_TAR_FILE_PREFIX = "rcv-result-tar";
+
+/** Prefix to use when naming the result archive received from server. */
+export const USR_EXTRACTION_DIR_COMPILE_PREFIX = "librars-compile";
