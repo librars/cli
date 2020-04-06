@@ -23,10 +23,6 @@ arg_path <- fetch_path_arg(args)
 
 print(paste("Compiling", arg_path))
 
-#print(paste("Args are", args))
-#print(.libPaths())
-#print(lapply(.libPaths(), dir))
-
 # Compile
 librarstemplates::render(arg_path)
 
