@@ -6,7 +6,6 @@
  */
 
 const fs = require("fs");
-const rimraf = require("rimraf");
 
 /**
  * Safely deletes a file.
@@ -25,21 +24,41 @@ export function deleteFile(filepath) {
  * Safely deletes a direcory.
  * 
  * @param {string} dirpath Path to the directory to delete.
- * @async
  */
-export async function deleteDirectory(dirpath) {
+export function deleteDirectory(dirpath) {
     if (!fs.existsSync(dirpath) || !fs.statSync(dirpath).isDirectory()) {
         return;
     }
 
-    return new Promise((resolve, reject) => {
-        rimraf(dirpath, (err) => {
-            if (!err) {
-                reject(err);
-                return;
-            }
+    // Depth first recursive deletion
+    const deleteFolderRecursive = (d) => {
+        if (fs.existsSync(d)) {
+            fs.readdirSync(d).forEach((file, index) => {
+                const curPath = path.join(d, file);
+                if (fs.lstatSync(curPath).isDirectory()) {
+                    deleteFolderRecursive(curPath);
+                } else {
+                    fs.unlinkSync(curPath); // Remove each file one by one
+                }
+            });
+            fs.rmdirSync(d); // Safe to delete folder as now empty
+        }
+    };
 
-            resolve();
-        });
-    });
+    deleteFolderRecursive(dirpath);
+}
+
+/**
+ * Makes sure a directory is created. If already present, nothing happens.
+ * 
+ * @param {string} dirpath Path to directory to ensure.
+ * @returns {boolean} True if a directory was created, false if already present.
+ */
+export function ensureDirectory(dirpath) {
+    if (fs.existsSync(dirpath)) {
+        return false;
+    }
+
+    fs.mkdirSync(dirpath);
+    return true;
 }

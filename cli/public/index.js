@@ -33,7 +33,9 @@ var config = {
   serverport: args.serverport,
   // Other args specific to commands
   noopts: args.noopts
-};
+}; // Extra config
+
+var runTrashCleanupScheduler = false;
 var machServerinfo = fetchServerinfo(config);
 var serverinfo = {
   url: machServerinfo.url,
@@ -55,6 +57,13 @@ switch (config.command) {
   case commands.COMMAND_COMPILE:
     handleCommand(commands.COMMAND_COMPILE, handleCommandCompile);
     break;
+}
+
+if (runTrashCleanupScheduler) {
+  tryCleanUpTrash();
+}
+
+function tryCleanUpTrash() {// TODO
 }
 
 function handleCommandCompile() {

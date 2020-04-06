@@ -32,6 +32,9 @@ const config = {
     noopts: args.noopts
 };
 
+// Extra config
+const runTrashCleanupScheduler = false;
+
 const machServerinfo = fetchServerinfo(config);
 const serverinfo = {
     url: machServerinfo.url,
@@ -53,6 +56,14 @@ switch (config.command) {
     case commands.COMMAND_COMPILE:
         handleCommand(commands.COMMAND_COMPILE, handleCommandCompile);
         break;
+}
+
+if (runTrashCleanupScheduler) {
+    tryCleanUpTrash();
+}
+
+function tryCleanUpTrash() {
+    // TODO
 }
 
 function handleCommandCompile() {

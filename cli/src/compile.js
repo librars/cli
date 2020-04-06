@@ -14,6 +14,9 @@ const common = require("@librars/cli-common");
 const commands = require("./commands");
 const consts = require("./consts");
 
+// Configuration
+const moveToTrash = true; // If false, it will permanently delete intermediate resources
+
 /**
  * Compiles a book.
  * 
@@ -101,7 +104,7 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
             });
 
             res.on("end", () => { // Waiting to receive the response
-                common.log(`Data fully received from server: ${data}`);
+                common.log(`Data fully received from server (len: ${data.length}): ${data}`);
 
                 // Deserialize and save received archive
                 const resultTarPath = deserializeAndSaveBase64String(data, `${consts.RCV_TAR_FILE_PREFIX}-${exid}.tgz`);
@@ -121,10 +124,12 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
 
                     resolve(); // Resolve only when receiving the response
                 }).catch((err) => {
-                    common.error(`An error occurred while extracting received content from server: ${err}`);
+                    common.error(`An error occurred while extracting received content '${resultTarPath}' from server: ${err}`);
 
                     if (cleanAfter) {
-                        clean(tarPath, resultTarPath);
+                        // Leave the result archive to inspect what went wrong in extraction process
+                        // clean(tarPath, resultTarPath);
+                        clean(tarPath);
                     }
 
                     reject(err);
@@ -185,7 +190,7 @@ function deserializeAndSaveBase64String(data, filename) {
     const dstDir = common.ensureDataDir();
     const dstPath = path.join(dstDir, filename);
 
-    fs.writeFileSync(dstPath, Buffer.from(data, "base64"), "base64");
+    fs.writeFileSync(dstPath, Buffer.from(data, "base64").toString("binary"), "binary");
     
     return dstPath;
 }
@@ -214,13 +219,22 @@ async function untar(tarPath, dstFolder) {
 }
 
 function clean(tarPath, resultTarPath) {
-    const deleteFile = (p) => {
+    const _disposeFile = (p) => {
+        if (moveToTrash) {
+            common.log(`File ${p} moved to trash`);
+            // TODO
+            return;
+        }
+        common.filesystem.deleteFile(p);
+        common.log(`File ${p} deleted`);
+    };
+
+    const disposeFile = (p) => {
         if (p && fs.existsSync(p)) {
-            common.filesystem.deleteFile(p);
-            common.log(`File ${p} deleted.`);
+            _disposeFile(p);
         }
     };
 
-    deleteFile(tarPath);
-    deleteFile(resultTarPath);
+    disposeFile(tarPath);
+    disposeFile(resultTarPath);
 }

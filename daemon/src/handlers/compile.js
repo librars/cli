@@ -16,6 +16,7 @@ const api = require("../api");
 
 // Configuration
 const cleanAfter = true;
+const moveToTrash = true; // If false, it will permanently delete intermediate resources
 
 /**
  * Handles the request.
@@ -139,19 +140,33 @@ function clean(tarPath, extractedDirPath) {
         return;
     }
 
+    const disposeFile = (p) => {
+        if (moveToTrash) {
+            common.log(`File ${p} moved to trash`);
+            // TODO
+            return;
+        }
+        common.filesystem.deleteFile(p);
+        common.log(`File ${p} deleted`);
+    };
+    const disposeDir = (p) => {
+        if (moveToTrash) {
+            common.log(`Directory ${p} moved to trash`);
+            // TODO
+            return;
+        }
+        common.filesystem.deleteDirectory(p);
+        common.log(`Directory ${p} deleted`);
+    };
+
     if (tarPath && fs.existsSync(tarPath)) {
-        common.filesystem.deleteFile(tarPath);
-        common.log(`File ${tarPath} deleted`);
+        disposeFile(tarPath);
     }
 
     if (extractedDirPath && fs.existsSync(extractedDirPath)) {
         // Since this folder also contains the tar created to send back
         // to the client, that resource will be cleared too
-        common.filesystem.deleteDirectory(extractedDirPath).then(() => {
-            common.log(`Directory ${extractedDirPath} deleted`);
-        }).catch((err) => {
-            common.warn(`Error while cleaning up. Could not remove directory ${extractedDirPath}: '${err}'`);
-        });
+        disposeDir(extractedDirPath);
     }
 }
 

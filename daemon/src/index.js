@@ -16,6 +16,7 @@ const yargs = require("yargs");
 const common = require("@librars/cli-common");
 
 const commands = require("./commands");
+const consts = require("./consts");
 
 const args = fetchArgs();
 const config = {
@@ -25,12 +26,34 @@ const config = {
     dir: ensureDir(args.dir) // this will make sure the directory exists
 };
 
+// Extra config
+const runTrashCleanupScheduler = false;
+
 common.log(`Server started. Listening on port ${config.port}...`);
 
 // Start the server
 http.createServer((req, res) => {
     handleRequest(req, res);
 }).listen(config.port);
+
+// Start trash cleanup scheduler
+if (runTrashCleanupScheduler) {
+    startTrashCleaupScheduler();
+}
+
+function startTrashCleaupScheduler() {
+    common.log(`Trash cleanup scheduler started, interval (ms): ${consts.TRASH_CLEANUP_SCHEDULE_INTERVAL}`);
+
+    const cleanUpTrash = () => {
+        // TODO
+    };
+
+    setInterval(() => {
+        common.log("About to cleanup trash...");
+        cleanUpTrash();
+        common.log(`Trash cleaned up! See you in ${consts.TRASH_CLEANUP_SCHEDULE_INTERVAL} ms...`);
+    }, consts.TRASH_CLEANUP_SCHEDULE_INTERVAL);
+}
 
 function handleRequest(req, res) {
     common.log(`Request received: ${req.method}, ${req.url}`);

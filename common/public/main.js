@@ -108,6 +108,9 @@ var filesystem = {
   deleteFile: filesystemIo.deleteFile,
 
   /** @see {filesystemIo.deleteDirectory} */
-  deleteDirectory: filesystemIo.deleteDirectory
+  deleteDirectory: filesystemIo.deleteDirectory,
+
+  /** @see {filesystemIo.ensureDirectory} */
+  ensureDirectory: filesystemIo.ensureDirectory
 };
 exports.filesystem = filesystem;

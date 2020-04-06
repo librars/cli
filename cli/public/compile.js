@@ -25,7 +25,11 @@ var common = require("@librars/cli-common");
 
 var commands = require("./commands");
 
-var consts = require("./consts");
+var consts = require("./consts"); // Configuration
+
+
+var moveToTrash = true; // If false, it will permanently delete intermediate resources
+
 /**
  * Compiles a book.
  * 
@@ -36,7 +40,6 @@ var consts = require("./consts");
  * @returns {Promise} a promise.
  * @async
  */
-
 
 function compile(_x, _x2, _x3) {
   return _compile.apply(this, arguments);
@@ -120,7 +123,7 @@ function _compile() {
         });
         res.on("end", () => {
           // Waiting to receive the response
-          common.log("Data fully received from server: ".concat(data)); // Deserialize and save received archive
+          common.log("Data fully received from server (len: ".concat(data.length, "): ").concat(data)); // Deserialize and save received archive
 
           var resultTarPath = deserializeAndSaveBase64String(data, "".concat(consts.RCV_TAR_FILE_PREFIX, "-").concat(exid, ".tgz"));
           common.log("Server result archive written into: ".concat(resultTarPath)); // Extract the archive and move content into a created folder
@@ -136,10 +139,12 @@ function _compile() {
 
             resolve(); // Resolve only when receiving the response
           }).catch(err => {
-            common.error("An error occurred while extracting received content from server: ".concat(err));
+            common.error("An error occurred while extracting received content '".concat(resultTarPath, "' from server: ").concat(err));
 
             if (cleanAfter) {
-              clean(tarPath, resultTarPath);
+              // Leave the result archive to inspect what went wrong in extraction process
+              // clean(tarPath, resultTarPath);
+              clean(tarPath);
             }
 
             reject(err);
@@ -206,7 +211,7 @@ function checkHeadersFromServerResponse(res, exid) {
 function deserializeAndSaveBase64String(data, filename) {
   var dstDir = common.ensureDataDir();
   var dstPath = path.join(dstDir, filename);
-  fs.writeFileSync(dstPath, Buffer.from(data, "base64"), "base64");
+  fs.writeFileSync(dstPath, Buffer.from(data, "base64").toString("binary"), "binary");
   return dstPath;
 }
 
@@ -248,13 +253,23 @@ function _untar() {
 }
 
 function clean(tarPath, resultTarPath) {
-  var deleteFile = p => {
+  var _disposeFile = p => {
+    if (moveToTrash) {
+      common.log("File ".concat(p, " moved to trash")); // TODO
+
+      return;
+    }
+
+    common.filesystem.deleteFile(p);
+    common.log("File ".concat(p, " deleted"));
+  };
+
+  var disposeFile = p => {
     if (p && fs.existsSync(p)) {
-      common.filesystem.deleteFile(p);
-      common.log("File ".concat(p, " deleted."));
+      _disposeFile(p);
     }
   };
 
-  deleteFile(tarPath);
-  deleteFile(resultTarPath);
+  disposeFile(tarPath);
+  disposeFile(resultTarPath);
 }

@@ -21,6 +21,8 @@ var common = require("@librars/cli-common");
 
 var commands = require("./commands");
 
+var consts = require("./consts");
+
 var args = fetchArgs();
 var config = {
   // Server listening to this port
@@ -28,12 +30,31 @@ var config = {
   // Directory where dumping received content
   dir: ensureDir(args.dir) // this will make sure the directory exists
 
-};
+}; // Extra config
+
+var runTrashCleanupScheduler = false;
 common.log("Server started. Listening on port ".concat(config.port, "...")); // Start the server
 
 http.createServer((req, res) => {
   handleRequest(req, res);
-}).listen(config.port);
+}).listen(config.port); // Start trash cleanup scheduler
+
+if (runTrashCleanupScheduler) {
+  startTrashCleaupScheduler();
+}
+
+function startTrashCleaupScheduler() {
+  common.log("Trash cleanup scheduler started, interval (ms): ".concat(consts.TRASH_CLEANUP_SCHEDULE_INTERVAL));
+
+  var cleanUpTrash = () => {// TODO
+  };
+
+  setInterval(() => {
+    common.log("About to cleanup trash...");
+    cleanUpTrash();
+    common.log("Trash cleaned up! See you in ".concat(consts.TRASH_CLEANUP_SCHEDULE_INTERVAL, " ms..."));
+  }, consts.TRASH_CLEANUP_SCHEDULE_INTERVAL);
+}
 
 function handleRequest(req, res) {
   common.log("Request received: ".concat(req.method, ", ").concat(req.url));

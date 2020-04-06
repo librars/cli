@@ -97,4 +97,6 @@ export const filesystem = {
     deleteFile: filesystemIo.deleteFile,
     /** @see {filesystemIo.deleteDirectory} */
     deleteDirectory: filesystemIo.deleteDirectory,
+    /** @see {filesystemIo.ensureDirectory} */
+    ensureDirectory: filesystemIo.ensureDirectory,
 };

@@ -26,20 +26,26 @@ export async function tarFolder(src, dst, name) {
 
     const options = {
         gzip: true,
-        cwd: srcDirName
+        cwd: srcDirName,
+        file: dstTarPath
     };
 
     return new Promise((resolve, reject) => {
-        const stream = tar.c(options, [srcFolderName]);
-        stream.pipe(fs.createWriteStream(dstTarPath));
-
-        stream.on("finish", () => {
+        tar.c(options, [srcFolderName]).then(() => {
             resolve(dstTarPath);
-        });
-
-        stream.on("error", (err) => {
+        }).catch((err) => {
             reject(err);
         });
+        // const stream = tar.c(options, [srcFolderName]);
+        // stream.pipe(fs.createWriteStream(dstTarPath));
+
+        // stream.on("finish", () => {
+        //     resolve(dstTarPath);
+        // });
+
+        // stream.on("error", (err) => {
+        //     reject(err);
+        // });
     });
 }
 
