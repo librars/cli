@@ -36,16 +36,6 @@ export async function tarFolder(src, dst, name) {
         }).catch((err) => {
             reject(err);
         });
-        // const stream = tar.c(options, [srcFolderName]);
-        // stream.pipe(fs.createWriteStream(dstTarPath));
-
-        // stream.on("finish", () => {
-        //     resolve(dstTarPath);
-        // });
-
-        // stream.on("error", (err) => {
-        //     reject(err);
-        // });
     });
 }
 
