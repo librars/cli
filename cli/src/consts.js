@@ -20,6 +20,12 @@ export const RCV_TAR_FILE_PREFIX = "cli-rcv-result-tar";
  */
 export const USR_EXTRACTION_DIR_COMPILE_PREFIX = "librars-compile";
 
+/** 
+ * Prefix to use when naming the directory created to place the extracted
+ * content from the archive received from server when requesting a template draft. 
+ */
+export const USR_EXTRACTION_DIR_DRAFT_PREFIX = "librars-draft";
+
 /** Name to assign to the trash folder. */
 export const TRASH_DIR_NAME = ".cli-trash";
 

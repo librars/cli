@@ -13,7 +13,8 @@ const { spawn } = require("child_process");
 
 /** The API available. */
 export const API = {
-    compile: "COMPILE"
+    compile: "COMPILE",
+    draft: "DRAFT"
 };
 
 /**
@@ -26,7 +27,10 @@ export async function invoke(api, ...params) {
 
     switch (api) {
         case API.compile:
-            result = await invokeCompile(params);
+            result = await invokeCompile(...params);
+            break;
+        case API.draft:
+            result = await invokeDraft(...params);
             break;
     }
 
@@ -40,6 +44,24 @@ async function invokeCompile(...params) {
         throw new Error("Parameter 'path' cannot be null or undefined");
     }
 
+    return invokeRScript("compile.R", compileDirPath);
+}
+
+async function invokeDraft(...params) {
+    const templateName = params[0]; // The name of the template
+    const draftArtifactFolder = params[1]; // Path to the folder where to save draft artifacts
+
+    if (!templateName) {
+        throw new Error("Parameter 'templateName' cannot be null or undefined");
+    }
+    if (!draftArtifactFolder) {
+        throw new Error("Parameter 'draftArtifactFolder' cannot be null or undefined");
+    }
+
+    return invokeRScript("draft.R", templateName, draftArtifactFolder);
+}
+
+async function invokeRScript(scriptFileName, ...params) {
     const rscriptInfo = config.tryFetchRScriptInfoFromDataDir();
     if (!rscriptInfo) {
         throw new Error("Could not fetch R script info");
@@ -55,7 +77,8 @@ async function invokeCompile(...params) {
     }
 
     return new Promise((resolve, reject) => {
-        const cmd = spawn(path2rscript, [path.normalize(path.join(__dirname, "..", "api", "compile.R")), compileDirPath]);
+        const scriptParams = [path.normalize(path.join(__dirname, "..", "api", scriptFileName))].concat(params);
+        const cmd = spawn(path2rscript, scriptParams);
 
         const buffer = {
             out: "",
@@ -80,11 +103,11 @@ async function invokeCompile(...params) {
         // and stdio streams have been closed
         const onCompleted = () => {
             if (exitCode !== 0) {
-                reject(`Compile exited with code ${exitCode}. Errors: ${buffer.err}`);
+                reject(`${scriptFileName} exited with code ${exitCode}. Errors: ${buffer.err}`);
                 return;
             }
 
-            resolve(`Compile exited with code ${exitCode}. Output: ${buffer.out}`);
+            resolve(`${scriptFileName} exited with code ${exitCode}. Output: ${buffer.out}`);
         };
     
         cmd.on("close", (code) => {

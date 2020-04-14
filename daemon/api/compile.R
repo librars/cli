@@ -1,5 +1,4 @@
-#' API for command \code{compile}
-#NULL
+# API for command \code{compile}
 
 library(librarstemplates)
 

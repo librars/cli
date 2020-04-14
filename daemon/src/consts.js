@@ -17,6 +17,9 @@ export const COMPILE_ARTIFACTS_TAR_FILE_PREFIX = "dmn-result-tar";
 /** Prefix to use when naming the folder hosting the archive's extracted content. */
 export const EXTRACTED_DIR_PREFIX = "dmn-rcv-extracted";
 
+/** Prefix to use when naming the folder hosting a draft's files. */
+export const DRAFT_DIR_PREFIX = "dmn-draft-content";
+
 /** Name to assign to the trash folder. */
 export const TRASH_DIR_NAME = ".dmn-trash";
 

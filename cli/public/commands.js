@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.buildCommandUrl = buildCommandUrl;
 exports.addRequiredHeadersToCommandRequest = addRequiredHeadersToCommandRequest;
 exports.newCommandExecId = newCommandExecId;
-exports.COMMAND_COMPILE = void 0;
+exports.COMMAND_DRAFT = exports.COMMAND_COMPILE = void 0;
 
 /**
  * commands.js
@@ -17,12 +17,14 @@ exports.COMMAND_COMPILE = void 0;
 var common = require("@librars/cli-common");
 
 var version = require("./version").version;
-/**
- * Compile.
- */
+/** Compile. */
 
 
 var COMMAND_COMPILE = "compile";
+/** Draft. */
+
+exports.COMMAND_COMPILE = COMMAND_COMPILE;
+var COMMAND_DRAFT = "draft";
 /**
  * Creates the proper URL to call a command.
  * 
@@ -30,7 +32,7 @@ var COMMAND_COMPILE = "compile";
  * @param {*} command The command to build.
  */
 
-exports.COMMAND_COMPILE = COMMAND_COMPILE;
+exports.COMMAND_DRAFT = COMMAND_DRAFT;
 
 function buildCommandUrl(serverinfo, command) {
   return "".concat(serverinfo.url, ":").concat(serverinfo.port, "/").concat(command);

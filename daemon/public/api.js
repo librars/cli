@@ -29,7 +29,8 @@ var {
 
 
 var API = {
-  compile: "COMPILE"
+  compile: "COMPILE",
+  draft: "DRAFT"
 };
 /**
  * 
@@ -47,13 +48,17 @@ function _invoke() {
   _invoke = _asyncToGenerator(function* (api) {
     var result = "";
 
+    for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      params[_key - 1] = arguments[_key];
+    }
+
     switch (api) {
       case API.compile:
-        for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-          params[_key - 1] = arguments[_key];
-        }
+        result = yield invokeCompile(...params);
+        break;
 
-        result = yield invokeCompile(params);
+      case API.draft:
+        result = yield invokeDraft(...params);
         break;
     }
 
@@ -74,6 +79,44 @@ function _invokeCompile() {
       throw new Error("Parameter 'path' cannot be null or undefined");
     }
 
+    return invokeRScript("compile.R", compileDirPath);
+  });
+  return _invokeCompile.apply(this, arguments);
+}
+
+function invokeDraft() {
+  return _invokeDraft.apply(this, arguments);
+}
+
+function _invokeDraft() {
+  _invokeDraft = _asyncToGenerator(function* () {
+    var templateName = arguments.length <= 0 ? undefined : arguments[0]; // The name of the template
+
+    var draftArtifactFolder = arguments.length <= 1 ? undefined : arguments[1]; // Path to the folder where to save draft artifacts
+
+    if (!templateName) {
+      throw new Error("Parameter 'templateName' cannot be null or undefined");
+    }
+
+    if (!draftArtifactFolder) {
+      throw new Error("Parameter 'draftArtifactFolder' cannot be null or undefined");
+    }
+
+    return invokeRScript("draft.R", templateName, draftArtifactFolder);
+  });
+  return _invokeDraft.apply(this, arguments);
+}
+
+function invokeRScript(_x2) {
+  return _invokeRScript.apply(this, arguments);
+}
+
+function _invokeRScript() {
+  _invokeRScript = _asyncToGenerator(function* (scriptFileName) {
+    for (var _len2 = arguments.length, params = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      params[_key2 - 1] = arguments[_key2];
+    }
+
     var rscriptInfo = config.tryFetchRScriptInfoFromDataDir();
 
     if (!rscriptInfo) {
@@ -91,7 +134,8 @@ function _invokeCompile() {
     }
 
     return new Promise((resolve, reject) => {
-      var cmd = spawn(path2rscript, [path.normalize(path.join(__dirname, "..", "api", "compile.R")), compileDirPath]);
+      var scriptParams = [path.normalize(path.join(__dirname, "..", "api", scriptFileName))].concat(params);
+      var cmd = spawn(path2rscript, scriptParams);
       var buffer = {
         out: "",
         err: ""
@@ -111,11 +155,11 @@ function _invokeCompile() {
 
       var onCompleted = () => {
         if (exitCode !== 0) {
-          reject("Compile exited with code ".concat(exitCode, ". Errors: ").concat(buffer.err));
+          reject("".concat(scriptFileName, " exited with code ").concat(exitCode, ". Errors: ").concat(buffer.err));
           return;
         }
 
-        resolve("Compile exited with code ".concat(exitCode, ". Output: ").concat(buffer.out));
+        resolve("".concat(scriptFileName, " exited with code ").concat(exitCode, ". Output: ").concat(buffer.out));
       };
 
       cmd.on("close", code => {
@@ -138,5 +182,5 @@ function _invokeCompile() {
       });
     });
   });
-  return _invokeCompile.apply(this, arguments);
+  return _invokeRScript.apply(this, arguments);
 }

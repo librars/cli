@@ -9,10 +9,11 @@ const common = require("@librars/cli-common");
 
 const version = require("./version").version;
 
-/**
- * Compile.
- */
+/** Compile. */
 export const COMMAND_COMPILE = "compile";
+
+/** Draft. */
+export const COMMAND_DRAFT = "draft";
 
 /**
  * Creates the proper URL to call a command.

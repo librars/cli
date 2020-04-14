@@ -1,10 +1,3 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.parseJsonString = parseJsonString;
-
 /**
  * utils.js
  * Andrea Tino - 2020
@@ -18,10 +11,10 @@ exports.parseJsonString = parseJsonString;
  * @param {string} str The string to parse.
  * @returns {object} The parsed object or null.
  */
-function parseJsonString(str) {
-  try {
-    return JSON.parse(str);
-  } catch (e) {
-    return null;
-  }
+export function parseJsonString(str) {
+    try {
+        return JSON.parse(str);
+    } catch (e) {
+        return null;
+    }
 }

@@ -3,17 +3,17 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.compile = compile;
+exports.draft = draft;
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 /**
- * compile.js
+ * draft.js
  * Andrea Tino - 2020
  * 
- * Executes a compile command.
+ * Executes a draft command.
  */
 var fs = require("fs");
 
@@ -25,7 +25,9 @@ var common = require("@librars/cli-common");
 
 var commands = require("./commands");
 
-var consts = require("./consts"); // Configuration
+var consts = require("./consts");
+
+var utils = require("./utils"); // Configuration
 
 
 var moveToTrash = true; // If false, it will permanently delete intermediate resources
@@ -35,19 +37,20 @@ var moveToTrash = true; // If false, it will permanently delete intermediate res
  * 
  * @param {string} exid The command execution id. If null a random one is generated.
  * @param {any} serverinfo The server info object.
- * @param {string} dirpath The path to the directory containing the book to compile.
+ * @param {string} templateName The name of the template whose draft files are requested.
+ * @param {string} dirpath The path to the directory where to place the received files.
  * @param {boolean} cleanAfter A value indicating whether to clean intermediate resources after the transmission completes.
  * @returns {Promise} a promise.
  * @async
  */
 
-function compile(_x, _x2, _x3) {
-  return _compile.apply(this, arguments);
+function draft(_x, _x2, _x3, _x4) {
+  return _draft.apply(this, arguments);
 }
 
-function _compile() {
-  _compile = _asyncToGenerator(function* (exid, serverinfo, dirpath) {
-    var cleanAfter = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+function _draft() {
+  _draft = _asyncToGenerator(function* (exid, serverinfo, templateName, dirpath) {
+    var cleanAfter = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
 
     if (!serverinfo) {
       throw new Error("Argument serverinfo canot be null or undefined");
@@ -63,21 +66,20 @@ function _compile() {
 
     if (!fs.statSync(dirpath).isDirectory) {
       throw new Error("Path ".concat(dirpath, " does not point to a directory"));
-    } // Generate the tar
+    } // Send the template name
 
 
-    var tarPath = yield createTar(dirpath, exid);
-    common.log("Tar created: ".concat(tarPath)); // Base64 encode
+    var requestBody = JSON.stringify({
+      // TODO: Create a message format in common
+      template_name: "".concat(templateName) // eslint-disable-line camelcase
 
-    var buffer = fs.readFileSync(tarPath);
-    var base64data = buffer.toString("base64");
-    common.log("Tar base64 computed (len: ".concat(base64data.length, "): ").concat(base64data)); // Transmit the zip
+    }); // Transmit the zip
 
     return new Promise((resolve, reject) => {
       var options = {
         hostname: serverinfo.url,
         port: serverinfo.port,
-        path: "/".concat(commands.COMMAND_COMPILE),
+        path: "/".concat(commands.COMMAND_DRAFT),
         method: "POST",
         protocol: "http:",
         encoding: null,
@@ -87,7 +89,7 @@ function _compile() {
       };
       commands.addRequiredHeadersToCommandRequest(options.headers, exid); // Handle all necessary headers
 
-      var commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
+      var commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_DRAFT);
       common.log("Initiating transmission to: ".concat(commandUrl));
       var clientRequest = http.request(options, res => {
         // Response handler
@@ -97,7 +99,7 @@ function _compile() {
           common.error("Received server non-successful response (".concat(res.statusCode, "): '").concat(res.statusMessage, "'"));
 
           if (cleanAfter) {
-            clean(tarPath);
+            clean();
           }
 
           reject(res.statusMessage);
@@ -110,7 +112,7 @@ function _compile() {
           common.error(errorMsg);
 
           if (cleanAfter) {
-            clean(tarPath);
+            clean();
           }
 
           reject(errorMsg);
@@ -128,13 +130,13 @@ function _compile() {
           var resultTarPath = deserializeAndSaveBase64String(data, "".concat(consts.RCV_TAR_FILE_PREFIX, "-").concat(exid, ".tgz"));
           common.log("Server result archive written into: ".concat(resultTarPath)); // Extract the archive and move content into a created folder
 
-          serveResultArchiveToUser(dirpath, resultTarPath, exid).then(extractedDirPath => {
+          serveResultArchiveToUser(dirpath, resultTarPath, exid, templateName).then(extractedDirPath => {
             common.log("Command result copied into: ".concat(extractedDirPath)); // Completion
 
-            common.log("Command ".concat(commands.COMMAND_COMPILE, " execution session (").concat(exid, ") completed :)")); // Cleanup on finalize
+            common.log("Command ".concat(commands.COMMAND_DRAFT, " execution session (").concat(exid, ") completed :)")); // Cleanup on finalize
 
             if (cleanAfter) {
-              clean(tarPath, resultTarPath);
+              clean(resultTarPath);
             }
 
             resolve(); // Resolve only when receiving the response
@@ -144,7 +146,7 @@ function _compile() {
             if (cleanAfter) {
               // Leave the result archive to inspect what went wrong in extraction process
               // clean(tarPath, resultTarPath);
-              clean(tarPath);
+              clean();
             }
 
             reject(err);
@@ -155,13 +157,13 @@ function _compile() {
       clientRequest.on("error", err => {
         // Cleanup upon error
         if (cleanAfter) {
-          clean(tarPath);
+          clean();
         }
 
         reject(err);
       }); // Transmit request body
 
-      clientRequest.write(base64data, "utf-8", err => {
+      clientRequest.write(requestBody, "utf-8", err => {
         if (err) {
           common.error("Error while sending request: ".concat(err));
           reject(err);
@@ -175,25 +177,52 @@ function _compile() {
       });
     }); // Promise
   });
-  return _compile.apply(this, arguments);
+  return _draft.apply(this, arguments);
 }
 
-function serveResultArchiveToUser(_x4, _x5, _x6) {
+function serveResultArchiveToUser(_x5, _x6, _x7, _x8) {
   return _serveResultArchiveToUser.apply(this, arguments);
 }
 
 function _serveResultArchiveToUser() {
-  _serveResultArchiveToUser = _asyncToGenerator(function* (userDirPath, tarPath, exid) {
-    var userExtractionDir = path.dirname(userDirPath);
+  _serveResultArchiveToUser = _asyncToGenerator(function* (userDirPath, tarPath, exid, templateName) {
+    var userExtractionDir = userDirPath;
 
     if (!fs.existsSync(userExtractionDir)) {
       common.warn("Could not extract result into ".concat(userExtractionDir, ", will extract into data folder instead"));
       userExtractionDir = common.ensureDataDir();
     }
 
-    var userExtractionPath = path.join(userExtractionDir, "".concat(consts.USR_EXTRACTION_DIR_COMPILE_PREFIX, "-").concat(exid));
+    var userExtractionPath = path.join(userExtractionDir, "".concat(consts.USR_EXTRACTION_DIR_DRAFT_PREFIX, "-").concat(exid));
     fs.mkdirSync(userExtractionPath);
-    return untar(tarPath, userExtractionPath);
+    var extractionDir = yield untar(tarPath, userExtractionPath);
+    return new Promise((resolve, reject) => {
+      if (extractionDir !== userExtractionPath) {
+        reject("Received tar extraction dir does not match expected. Expected '".concat(userExtractionPath, "', got: '").concat(extractionDir, "'"));
+        return;
+      } // Check that the extracted folder has only one folder inside
+
+
+      var extractedDirItems = fs.readdirSync(extractionDir);
+
+      if (extractedDirItems.length !== 1) {
+        reject("Artifact folder with extracted content should contain only one entry, found ".concat(extractedDirItems.length));
+        return;
+      }
+
+      var draftArtifactFolder = path.join(extractionDir, extractedDirItems[0]);
+
+      if (!fs.statSync(draftArtifactFolder).isDirectory) {
+        reject("Artifact folder with extracted content should contain only one directory (actual type is not directory)");
+        return;
+      } // Rename the folder containing the draft artifacts to use the template name
+
+
+      var newDraftArtifactFolder = path.join(extractionDir, utils.ensureProperFsNodeName(templateName));
+      fs.renameSync(draftArtifactFolder, newDraftArtifactFolder); // Return the new path to the folder
+
+      resolve(newDraftArtifactFolder);
+    });
   });
   return _serveResultArchiveToUser.apply(this, arguments);
 }
@@ -215,27 +244,7 @@ function deserializeAndSaveBase64String(data, filename) {
   return dstPath;
 }
 
-function createTar(_x7) {
-  return _createTar.apply(this, arguments);
-}
-
-function _createTar() {
-  _createTar = _asyncToGenerator(function* (dirpath) {
-    var exid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var dstDir = common.ensureDataDir();
-    var tarFileName = "".concat(consts.TAR_FILE_PREFIX, "-").concat(exid || common.generateId(true));
-    var tarPath = yield common.filesystem.tarFolder(dirpath, dstDir, tarFileName);
-
-    if (path.join(dstDir, "".concat(tarFileName, ".tgz")) !== tarPath) {
-      throw new Error("Created tar ".concat(tarPath, " was supposed to be in ").concat(dstDir, "."));
-    }
-
-    return tarPath;
-  });
-  return _createTar.apply(this, arguments);
-}
-
-function untar(_x8, _x9) {
+function untar(_x9, _x10) {
   return _untar.apply(this, arguments);
 }
 
@@ -252,7 +261,7 @@ function _untar() {
   return _untar.apply(this, arguments);
 }
 
-function clean(tarPath, resultTarPath) {
+function clean(resultTarPath) {
   var _disposeFile = p => {
     if (moveToTrash) {
       common.log("File ".concat(p, " moved to trash")); // TODO
@@ -270,6 +279,5 @@ function clean(tarPath, resultTarPath) {
     }
   };
 
-  disposeFile(tarPath);
   disposeFile(resultTarPath);
 }

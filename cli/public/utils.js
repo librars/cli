@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.moveToTrash = moveToTrash;
+exports.ensureProperFsNodeName = ensureProperFsNodeName;
 
 /**
  * utils.js
@@ -25,4 +26,15 @@ function moveToTrash(resourcePath) {
     return null;
   } // TODO
 
+}
+/**
+ * Ensures a proper name for a filesystem entity.
+ * 
+ * @param {string} name The candidate name.
+ * @returns {string} The adjusted name (no spaces and special chars).
+ */
+
+
+function ensureProperFsNodeName(name) {
+  return name.replace(/\s+/g, "");
 }

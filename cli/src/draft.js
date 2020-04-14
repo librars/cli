@@ -1,8 +1,8 @@
 /**
- * compile.js
+ * draft.js
  * Andrea Tino - 2020
  * 
- * Executes a compile command.
+ * Executes a draft command.
  */
 
 const fs = require("fs");
@@ -13,6 +13,7 @@ const common = require("@librars/cli-common");
 
 const commands = require("./commands");
 const consts = require("./consts");
+const utils = require("./utils");
 
 // Configuration
 const moveToTrash = true; // If false, it will permanently delete intermediate resources
@@ -22,12 +23,13 @@ const moveToTrash = true; // If false, it will permanently delete intermediate r
  * 
  * @param {string} exid The command execution id. If null a random one is generated.
  * @param {any} serverinfo The server info object.
- * @param {string} dirpath The path to the directory containing the book to compile.
+ * @param {string} templateName The name of the template whose draft files are requested.
+ * @param {string} dirpath The path to the directory where to place the received files.
  * @param {boolean} cleanAfter A value indicating whether to clean intermediate resources after the transmission completes.
  * @returns {Promise} a promise.
  * @async
  */
-export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
+export async function draft(exid, serverinfo, templateName, dirpath, cleanAfter = true) {
     if (!serverinfo) {
         throw new Error("Argument serverinfo canot be null or undefined");
     }
@@ -42,21 +44,17 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
         throw new Error(`Path ${dirpath} does not point to a directory`);
     }
 
-    // Generate the tar
-    const tarPath = await createTar(dirpath, exid);
-    common.log(`Tar created: ${tarPath}`);
-
-    // Base64 encode
-    const buffer = fs.readFileSync(tarPath);
-    const base64data = buffer.toString("base64");
-    common.log(`Tar base64 computed (len: ${base64data.length}): ${base64data}`);
+    // Send the template name
+    const requestBody = JSON.stringify({ // TODO: Create a message format in common
+        template_name: `${templateName}` // eslint-disable-line camelcase
+    });
 
     // Transmit the zip
     return new Promise((resolve, reject) => {
         const options = {
             hostname: serverinfo.url,
             port: serverinfo.port,
-            path: `/${commands.COMMAND_COMPILE}`,
+            path: `/${commands.COMMAND_DRAFT}`,
             method: "POST",
             protocol: "http:",
             encoding: null,
@@ -66,7 +64,7 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
         };
         commands.addRequiredHeadersToCommandRequest(options.headers, exid); // Handle all necessary headers
 
-        const commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_COMPILE);
+        const commandUrl = commands.buildCommandUrl(serverinfo, commands.COMMAND_DRAFT);
         common.log(`Initiating transmission to: ${commandUrl}`);
 
         const clientRequest = http.request(options, (res) => { // Response handler
@@ -77,7 +75,7 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
                 common.error(`Received server non-successful response (${res.statusCode}): '${res.statusMessage}'`);
 
                 if (cleanAfter) {
-                    clean(tarPath);
+                    clean();
                 }
 
                 reject(res.statusMessage);
@@ -90,7 +88,7 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
                 common.error(errorMsg);
 
                 if (cleanAfter) {
-                    clean(tarPath);
+                    clean();
                 }
 
                 reject(errorMsg);
@@ -111,15 +109,15 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
                 common.log(`Server result archive written into: ${resultTarPath}`);
 
                 // Extract the archive and move content into a created folder
-                serveResultArchiveToUser(dirpath, resultTarPath, exid).then((extractedDirPath) => {
+                serveResultArchiveToUser(dirpath, resultTarPath, exid, templateName).then((extractedDirPath) => {
                     common.log(`Command result copied into: ${extractedDirPath}`);
 
                     // Completion
-                    common.log(`Command ${commands.COMMAND_COMPILE} execution session (${exid}) completed :)`);
+                    common.log(`Command ${commands.COMMAND_DRAFT} execution session (${exid}) completed :)`);
 
                     // Cleanup on finalize
                     if (cleanAfter) {
-                        clean(tarPath, resultTarPath);
+                        clean(resultTarPath);
                     }
 
                     resolve(); // Resolve only when receiving the response
@@ -129,7 +127,7 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
                     if (cleanAfter) {
                         // Leave the result archive to inspect what went wrong in extraction process
                         // clean(tarPath, resultTarPath);
-                        clean(tarPath);
+                        clean();
                     }
 
                     reject(err);
@@ -140,14 +138,14 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
         clientRequest.on("error", (err) => {
             // Cleanup upon error
             if (cleanAfter) {
-                clean(tarPath);
+                clean();
             }
 
             reject(err);
         });
 
         // Transmit request body
-        clientRequest.write(base64data, "utf-8", (err) => {
+        clientRequest.write(requestBody, "utf-8", (err) => {
             if (err) {
                 common.error(`Error while sending request: ${err}`);
 
@@ -163,17 +161,43 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
     }); // Promise
 }
 
-async function serveResultArchiveToUser(userDirPath, tarPath, exid) {
-    let userExtractionDir = path.dirname(userDirPath);
+async function serveResultArchiveToUser(userDirPath, tarPath, exid, templateName) {
+    let userExtractionDir = userDirPath;
     if (!fs.existsSync(userExtractionDir)) {
         common.warn(`Could not extract result into ${userExtractionDir}, will extract into data folder instead`);
         userExtractionDir = common.ensureDataDir();
     }
-    const userExtractionPath = path.join(userExtractionDir, `${consts.USR_EXTRACTION_DIR_COMPILE_PREFIX}-${exid}`);
+    const userExtractionPath = path.join(userExtractionDir, `${consts.USR_EXTRACTION_DIR_DRAFT_PREFIX}-${exid}`);
 
     fs.mkdirSync(userExtractionPath);
 
-    return untar(tarPath, userExtractionPath);
+    const extractionDir = await untar(tarPath, userExtractionPath);
+
+    return new Promise((resolve, reject) => {
+        if (extractionDir !== userExtractionPath) {
+            reject(`Received tar extraction dir does not match expected. Expected '${userExtractionPath}', got: '${extractionDir}'`);
+            return;
+        }
+
+        // Check that the extracted folder has only one folder inside
+        const extractedDirItems = fs.readdirSync(extractionDir);
+        if (extractedDirItems.length !== 1) {
+            reject(`Artifact folder with extracted content should contain only one entry, found ${extractedDirItems.length}`);
+            return;
+        }
+        const draftArtifactFolder = path.join(extractionDir, extractedDirItems[0]);
+        if (!fs.statSync(draftArtifactFolder).isDirectory) {
+            reject("Artifact folder with extracted content should contain only one directory (actual type is not directory)");
+            return;
+        }
+
+        // Rename the folder containing the draft artifacts to use the template name
+        const newDraftArtifactFolder = path.join(extractionDir, utils.ensureProperFsNodeName(templateName));
+        fs.renameSync(draftArtifactFolder, newDraftArtifactFolder);
+
+        // Return the new path to the folder
+        resolve(newDraftArtifactFolder);
+    });
 }
 
 function checkHeadersFromServerResponse(res, exid) {
@@ -195,19 +219,6 @@ function deserializeAndSaveBase64String(data, filename) {
     return dstPath;
 }
 
-async function createTar(dirpath, exid = null) {
-    const dstDir = common.ensureDataDir();
-    const tarFileName = `${consts.TAR_FILE_PREFIX}-${exid || common.generateId(true)}`;
-
-    const tarPath = await common.filesystem.tarFolder(dirpath, dstDir, tarFileName);
-
-    if (path.join(dstDir, `${tarFileName}.tgz`) !== tarPath) {
-        throw new Error(`Created tar ${tarPath} was supposed to be in ${dstDir}.`);
-    }
-
-    return tarPath;
-}
-
 async function untar(tarPath, dstFolder) {
     const extractedDirPath = await common.filesystem.untarFolder(tarPath, dstFolder);
 
@@ -218,7 +229,7 @@ async function untar(tarPath, dstFolder) {
     return extractedDirPath;
 }
 
-function clean(tarPath, resultTarPath) {
+function clean(resultTarPath) {
     const _disposeFile = (p) => {
         if (moveToTrash) {
             common.log(`File ${p} moved to trash`);
@@ -235,6 +246,5 @@ function clean(tarPath, resultTarPath) {
         }
     };
 
-    disposeFile(tarPath);
     disposeFile(resultTarPath);
 }

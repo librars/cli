@@ -9,6 +9,7 @@
  * 
  * Available commands:
  * - compile
+ * - draft
  */
 
 const yargs = require("yargs");
@@ -17,6 +18,7 @@ const common = require("@librars/cli-common");
 
 const commands = require("./commands");
 const compile = require("./compile").compile;
+const draft = require("./draft").draft;
 const serverconfig = require("./config");
 
 const args = fetchArgs();
@@ -56,6 +58,10 @@ switch (config.command) {
     case commands.COMMAND_COMPILE:
         handleCommand(commands.COMMAND_COMPILE, handleCommandCompile);
         break;
+
+    case commands.COMMAND_DRAFT:
+        handleCommand(commands.COMMAND_DRAFT, handleCommandDraft);
+        break;
 }
 
 if (runTrashCleanupScheduler) {
@@ -67,12 +73,23 @@ function tryCleanUpTrash() {
 }
 
 function handleCommandCompile() {
-    const argPath = config.noopts[1];
+    const argPath = config.noopts[1]; // Path to where source files are
 
     compile(exid, serverinfo, argPath, true).then(() => {
         common.log(`Completed command ${commands.COMMAND_COMPILE}`);
     }).catch((e) => {
         common.error(`Command ${commands.COMMAND_COMPILE} encountered an error: '${e}'`);
+    });
+}
+
+function handleCommandDraft() {
+    const argTemplateName = config.noopts[1]; // Template name
+    const argPath = config.noopts[2]; // Path to where creating the draft
+
+    draft(exid, serverinfo, argTemplateName, argPath, true).then(() => {
+        common.log(`Completed command ${commands.COMMAND_DRAFT}`);
+    }).catch((e) => {
+        common.error(`Command ${commands.COMMAND_DRAFT} encountered an error: '${e}'`);
     });
 }
 

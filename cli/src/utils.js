@@ -20,3 +20,13 @@ export function moveToTrash(resourcePath) {
 
     // TODO
 }
+
+/**
+ * Ensures a proper name for a filesystem entity.
+ * 
+ * @param {string} name The candidate name.
+ * @returns {string} The adjusted name (no spaces and special chars).
+ */
+export function ensureProperFsNodeName(name) {
+    return name.replace(/\s+/g, "");
+}

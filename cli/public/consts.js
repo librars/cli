@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TRASH_CLEANUP_SCHEDULE_THRESHOLD = exports.TRASH_DIR_NAME = exports.USR_EXTRACTION_DIR_COMPILE_PREFIX = exports.RCV_TAR_FILE_PREFIX = exports.TAR_FILE_PREFIX = exports.CONFIG_FILE_NAME = void 0;
+exports.TRASH_CLEANUP_SCHEDULE_THRESHOLD = exports.TRASH_DIR_NAME = exports.USR_EXTRACTION_DIR_DRAFT_PREFIX = exports.USR_EXTRACTION_DIR_COMPILE_PREFIX = exports.RCV_TAR_FILE_PREFIX = exports.TAR_FILE_PREFIX = exports.CONFIG_FILE_NAME = void 0;
 
 /**
  * consts.js
@@ -29,9 +29,16 @@ var RCV_TAR_FILE_PREFIX = "cli-rcv-result-tar";
 
 exports.RCV_TAR_FILE_PREFIX = RCV_TAR_FILE_PREFIX;
 var USR_EXTRACTION_DIR_COMPILE_PREFIX = "librars-compile";
-/** Name to assign to the trash folder. */
+/** 
+ * Prefix to use when naming the directory created to place the extracted
+ * content from the archive received from server when requesting a template draft. 
+ */
 
 exports.USR_EXTRACTION_DIR_COMPILE_PREFIX = USR_EXTRACTION_DIR_COMPILE_PREFIX;
+var USR_EXTRACTION_DIR_DRAFT_PREFIX = "librars-draft";
+/** Name to assign to the trash folder. */
+
+exports.USR_EXTRACTION_DIR_DRAFT_PREFIX = USR_EXTRACTION_DIR_DRAFT_PREFIX;
 var TRASH_DIR_NAME = ".cli-trash";
 /** Number of max elements in the trash which should trigger a cleanup in the next round. */
 
