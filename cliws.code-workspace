@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "common"
+		},
+		{
+			"path": "daemon"
+		},
+		{
+			"path": "cli"
+		},
+		{
+			"path": "vscode"
+		}
+	],
+	"settings": {}
+}
