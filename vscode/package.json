@@ -3,7 +3,7 @@
 	"displayName": "LibRArs Visual Studio Code Client",
 	"description": "VSCode extension to author content using LibRArs.",
 	"author": "Andrea Tino",
-  "license": "GPL-3.0",
+	"license": "GPL-3.0",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.44.0"
@@ -12,14 +12,24 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:librars-vscode-cli.helloWorld"
+		"onCommand:help",
+		"onCommand:compile",
+		"onCommand:new"
 	],
-	"main": "./extension.js",
+	"main": "./src/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "librars-vscode-cli.helloWorld",
-				"title": "Hello World"
+				"command": "help",
+				"title": "Help"
+			},
+			{
+				"command": "compile",
+				"title": "Compile artifact"
+			},
+			{
+				"command": "new",
+				"title": "New artifact"
 			}
 		]
 	},
