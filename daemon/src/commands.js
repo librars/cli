@@ -12,6 +12,7 @@ const version = require("./version").version;
 const commandHandlers = {
     compile: require("./handlers/compile").handleCompile,
     draft: require("./handlers/draft").handleDraft,
+    list: require("./handlers/list").handleList,
     unknown: require("./handlers/unknown").handleUnknown,
     notcompatible: require("./handlers/notcompatible").handleNotCompatible
 };
@@ -21,6 +22,9 @@ export const COMMAND_COMPILE = "compile";
 
 /** Draft. */
 export const COMMAND_DRAFT = "draft";
+
+/** List. */
+export const COMMAND_LIST = "list";
 
 /** Unknown command. */
 export const COMMAND_UNKNOWN = "unknown";
@@ -44,6 +48,9 @@ export function mapCommand(req) {
 
         case `/${COMMAND_DRAFT}`:
             return commandHandlers.draft;
+
+        case `/${COMMAND_LIST}`:
+            return commandHandlers.list;
 
         default:
             return commandHandlers.unknown;

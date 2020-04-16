@@ -19,7 +19,7 @@ const utils = require("./utils");
 const moveToTrash = true; // If false, it will permanently delete intermediate resources
 
 /**
- * Compiles a book.
+ * Drafts a book.
  * 
  * @param {string} exid The command execution id. If null a random one is generated.
  * @param {any} serverinfo The server info object.
@@ -49,7 +49,7 @@ export async function draft(exid, serverinfo, templateName, dirpath, cleanAfter 
         template_name: `${templateName}` // eslint-disable-line camelcase
     });
 
-    // Transmit the zip
+    // Transmit the request
     return new Promise((resolve, reject) => {
         const options = {
             hostname: serverinfo.url,

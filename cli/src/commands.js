@@ -15,6 +15,9 @@ export const COMMAND_COMPILE = "compile";
 /** Draft. */
 export const COMMAND_DRAFT = "draft";
 
+/** List. */
+export const COMMAND_LIST = "list";
+
 /**
  * Creates the proper URL to call a command.
  * 

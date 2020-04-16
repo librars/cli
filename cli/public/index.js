@@ -23,6 +23,8 @@ var compile = require("./compile").compile;
 
 var draft = require("./draft").draft;
 
+var list = require("./list").list;
+
 var serverconfig = require("./config");
 
 var args = fetchArgs();
@@ -64,6 +66,10 @@ switch (config.command) {
   case commands.COMMAND_DRAFT:
     handleCommand(commands.COMMAND_DRAFT, handleCommandDraft);
     break;
+
+  case commands.COMMAND_LIST:
+    handleCommand(commands.COMMAND_LIST, handleCommandList);
+    break;
 }
 
 if (runTrashCleanupScheduler) {
@@ -92,6 +98,15 @@ function handleCommandDraft() {
     common.log("Completed command ".concat(commands.COMMAND_DRAFT));
   }).catch(e => {
     common.error("Command ".concat(commands.COMMAND_DRAFT, " encountered an error: '").concat(e, "'"));
+  });
+}
+
+function handleCommandList() {
+  // This command accepts no arguments
+  list(exid, serverinfo).then(() => {
+    common.log("Completed command ".concat(commands.COMMAND_LIST));
+  }).catch(e => {
+    common.error("Command ".concat(commands.COMMAND_LIST, " encountered an error: '").concat(e, "'"));
   });
 }
 

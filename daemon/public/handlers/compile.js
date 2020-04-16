@@ -96,8 +96,8 @@ function onRequestFullyReceived(req, res, reqBody) {
     common.log("Artifacts extracted into: '".concat(extractedDirPath, "'")); // Compile content
 
     common.log("Compiling '".concat(compilationArtifactFolder, "'..."));
-    api.invoke(api.API.compile, compilationArtifactFolder).then(msg => {
-      common.log("Compilation completed: '".concat(msg, "'")); // Archive folder with resulted compilation artifacts
+    api.invoke(api.API.compile, compilationArtifactFolder).then(apiResult => {
+      common.log("Compilation completed: '".concat(JSON.stringify(apiResult), "'")); // Archive folder with resulted compilation artifacts
 
       var directoryToTar = compilationArtifactFolder;
       createTar(directoryToTar, extractedDirPath, exid).then(tarPath => {

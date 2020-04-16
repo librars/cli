@@ -84,8 +84,8 @@ function onRequestFullyReceived(req, res, reqBody) {
   fs.mkdirSync(draftArtifactFolder); // Get draft artifacts
 
   common.log("Draft artifacts for template '".concat(templateName, "' will be retrieved and saved into: '").concat(draftArtifactFolder, "'..."));
-  api.invoke(api.API.draft, templateName, draftArtifactFolder).then(msg => {
-    common.log("Draft artifacts retrieval completed: '".concat(msg, "'")); // Archive folder with draft artifacts
+  api.invoke(api.API.draft, templateName, draftArtifactFolder).then(apiResult => {
+    common.log("Draft artifacts retrieval completed: '".concat(JSON.stringify(apiResult), "'")); // Archive folder with draft artifacts
 
     var directoryToTar = draftArtifactFolder;
     createTar(directoryToTar, dstDir, exid).then(tarPath => {

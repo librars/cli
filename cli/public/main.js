@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.draft = exports.compile = void 0;
+exports.list = exports.draft = exports.compile = void 0;
 
 /**
  * main.js
@@ -14,6 +14,8 @@ exports.draft = exports.compile = void 0;
 var compileCommand = require("./compile");
 
 var draftCommand = require("./draft");
+
+var listCommand = require("./list");
 /** @see {compileCommand.compile} */
 
 
@@ -22,4 +24,8 @@ var compile = compileCommand.compile;
 
 exports.compile = compile;
 var draft = draftCommand.draft;
+/** @see {listCommand.list} */
+
 exports.draft = draft;
+var list = listCommand.list;
+exports.list = list;

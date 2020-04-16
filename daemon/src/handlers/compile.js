@@ -89,8 +89,8 @@ function onRequestFullyReceived(req, res, reqBody) {
 
         // Compile content
         common.log(`Compiling '${compilationArtifactFolder}'...`);
-        api.invoke(api.API.compile, compilationArtifactFolder).then((msg) => {
-            common.log(`Compilation completed: '${msg}'`);
+        api.invoke(api.API.compile, compilationArtifactFolder).then((apiResult) => {
+            common.log(`Compilation completed: '${JSON.stringify(apiResult)}'`);
 
             // Archive folder with resulted compilation artifacts
             const directoryToTar = compilationArtifactFolder;

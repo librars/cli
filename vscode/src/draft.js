@@ -5,6 +5,8 @@
 
 const vscode = require("vscode");
 
+const cli = require("@librars/cli");
+
 const path = require("path");
 const fs = require("fs");
 
@@ -50,11 +52,23 @@ function draft(context) {
                 return;
             }
 
+            const onDidChangeWorkspaceFoldersListener = vscode.workspace.onDidChangeWorkspaceFolders((e) => {
+                // Reset the event
+                onDidChangeWorkspaceFoldersListener.dispose();
+
+                // Move to the next stage
+                generateDraft(context);
+            });
+
             reopenWorkspace(pathToNewWSFolder, value);
         });
     });
 }
 exports.draft = draft;
+
+function generateDraft(context) {
+    
+}
 
 function reopenWorkspace(path, wsname) {
     const uri = vscode.Uri.file(path);

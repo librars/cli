@@ -14,7 +14,8 @@ const { spawn } = require("child_process");
 /** The API available. */
 export const API = {
     compile: "COMPILE",
-    draft: "DRAFT"
+    draft: "DRAFT",
+    list: "LIST"
 };
 
 /**
@@ -31,6 +32,9 @@ export async function invoke(api, ...params) {
             break;
         case API.draft:
             result = await invokeDraft(...params);
+            break;
+        case API.list:
+            result = await invokeList(...params);
             break;
     }
 
@@ -59,6 +63,12 @@ async function invokeDraft(...params) {
     }
 
     return invokeRScript("draft.R", templateName, draftArtifactFolder);
+}
+
+async function invokeList(...params) {
+    // This API does not expect any parameter
+
+    return invokeRScript("list.R");
 }
 
 async function invokeRScript(scriptFileName, ...params) {
@@ -107,10 +117,13 @@ async function invokeRScript(scriptFileName, ...params) {
                 return;
             }
 
-            resolve(`${scriptFileName} exited with code ${exitCode}. Output: ${buffer.out}`);
+            resolve({
+                msg: `${scriptFileName} exited with code ${exitCode}. Output: ${buffer.out}`,
+                value: buffer.out
+            });
         };
     
-        cmd.on("close", (code) => {
+        cmd.on("close", () => {
             if (!exitOrCloseRaised) {
                 exitOrCloseRaised = true;
                 return;

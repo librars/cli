@@ -30,7 +30,8 @@ var {
 
 var API = {
   compile: "COMPILE",
-  draft: "DRAFT"
+  draft: "DRAFT",
+  list: "LIST"
 };
 /**
  * 
@@ -59,6 +60,10 @@ function _invoke() {
 
       case API.draft:
         result = yield invokeDraft(...params);
+        break;
+
+      case API.list:
+        result = yield invokeList(...params);
         break;
     }
 
@@ -105,6 +110,18 @@ function _invokeDraft() {
     return invokeRScript("draft.R", templateName, draftArtifactFolder);
   });
   return _invokeDraft.apply(this, arguments);
+}
+
+function invokeList() {
+  return _invokeList.apply(this, arguments);
+}
+
+function _invokeList() {
+  _invokeList = _asyncToGenerator(function* () {
+    // This API does not expect any parameter
+    return invokeRScript("list.R");
+  });
+  return _invokeList.apply(this, arguments);
 }
 
 function invokeRScript(_x2) {
@@ -159,10 +176,13 @@ function _invokeRScript() {
           return;
         }
 
-        resolve("".concat(scriptFileName, " exited with code ").concat(exitCode, ". Output: ").concat(buffer.out));
+        resolve({
+          msg: "".concat(scriptFileName, " exited with code ").concat(exitCode, ". Output: ").concat(buffer.out),
+          value: buffer.out
+        });
       };
 
-      cmd.on("close", code => {
+      cmd.on("close", () => {
         if (!exitOrCloseRaised) {
           exitOrCloseRaised = true;
           return;

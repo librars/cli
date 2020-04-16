@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.buildCommandUrl = buildCommandUrl;
 exports.addRequiredHeadersToCommandRequest = addRequiredHeadersToCommandRequest;
 exports.newCommandExecId = newCommandExecId;
-exports.COMMAND_DRAFT = exports.COMMAND_COMPILE = void 0;
+exports.COMMAND_LIST = exports.COMMAND_DRAFT = exports.COMMAND_COMPILE = void 0;
 
 /**
  * commands.js
@@ -25,6 +25,10 @@ var COMMAND_COMPILE = "compile";
 
 exports.COMMAND_COMPILE = COMMAND_COMPILE;
 var COMMAND_DRAFT = "draft";
+/** List. */
+
+exports.COMMAND_DRAFT = COMMAND_DRAFT;
+var COMMAND_LIST = "list";
 /**
  * Creates the proper URL to call a command.
  * 
@@ -32,7 +36,7 @@ var COMMAND_DRAFT = "draft";
  * @param {*} command The command to build.
  */
 
-exports.COMMAND_DRAFT = COMMAND_DRAFT;
+exports.COMMAND_LIST = COMMAND_LIST;
 
 function buildCommandUrl(serverinfo, command) {
   return "".concat(serverinfo.url, ":").concat(serverinfo.port, "/").concat(command);

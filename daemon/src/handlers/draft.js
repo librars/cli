@@ -74,8 +74,8 @@ function onRequestFullyReceived(req, res, reqBody) {
 
     // Get draft artifacts
     common.log(`Draft artifacts for template '${templateName}' will be retrieved and saved into: '${draftArtifactFolder}'...`);
-    api.invoke(api.API.draft, templateName, draftArtifactFolder).then((msg) => {
-        common.log(`Draft artifacts retrieval completed: '${msg}'`);
+    api.invoke(api.API.draft, templateName, draftArtifactFolder).then((apiResult) => {
+        common.log(`Draft artifacts retrieval completed: '${JSON.stringify(apiResult)}'`);
 
         // Archive folder with draft artifacts
         const directoryToTar = draftArtifactFolder;

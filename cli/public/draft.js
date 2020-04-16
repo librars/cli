@@ -33,7 +33,7 @@ var utils = require("./utils"); // Configuration
 var moveToTrash = true; // If false, it will permanently delete intermediate resources
 
 /**
- * Compiles a book.
+ * Drafts a book.
  * 
  * @param {string} exid The command execution id. If null a random one is generated.
  * @param {any} serverinfo The server info object.
@@ -73,7 +73,7 @@ function _draft() {
       // TODO: Create a message format in common
       template_name: "".concat(templateName) // eslint-disable-line camelcase
 
-    }); // Transmit the zip
+    }); // Transmit the request
 
     return new Promise((resolve, reject) => {
       var options = {

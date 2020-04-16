@@ -19,6 +19,7 @@ const common = require("@librars/cli-common");
 const commands = require("./commands");
 const compile = require("./compile").compile;
 const draft = require("./draft").draft;
+const list = require("./list").list;
 const serverconfig = require("./config");
 
 const args = fetchArgs();
@@ -62,6 +63,10 @@ switch (config.command) {
     case commands.COMMAND_DRAFT:
         handleCommand(commands.COMMAND_DRAFT, handleCommandDraft);
         break;
+
+    case commands.COMMAND_LIST:
+        handleCommand(commands.COMMAND_LIST, handleCommandList);
+        break;
 }
 
 if (runTrashCleanupScheduler) {
@@ -90,6 +95,16 @@ function handleCommandDraft() {
         common.log(`Completed command ${commands.COMMAND_DRAFT}`);
     }).catch((e) => {
         common.error(`Command ${commands.COMMAND_DRAFT} encountered an error: '${e}'`);
+    });
+}
+
+function handleCommandList() {
+    // This command accepts no arguments
+
+    list(exid, serverinfo).then(() => {
+        common.log(`Completed command ${commands.COMMAND_LIST}`);
+    }).catch((e) => {
+        common.error(`Command ${commands.COMMAND_LIST} encountered an error: '${e}'`);
     });
 }
 

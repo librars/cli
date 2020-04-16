@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.mapCommand = mapCommand;
 exports.mapErrorHandlingCommand = mapErrorHandlingCommand;
 exports.addRequiredHeadersToCommandResponse = addRequiredHeadersToCommandResponse;
-exports.COMMAND_NOTCOMPATIBLE = exports.COMMAND_WRONG_FORMAT = exports.COMMAND_UNKNOWN = exports.COMMAND_DRAFT = exports.COMMAND_COMPILE = void 0;
+exports.COMMAND_NOTCOMPATIBLE = exports.COMMAND_WRONG_FORMAT = exports.COMMAND_UNKNOWN = exports.COMMAND_LIST = exports.COMMAND_DRAFT = exports.COMMAND_COMPILE = void 0;
 
 /**
  * commands.js
@@ -21,6 +21,7 @@ var version = require("./version").version;
 var commandHandlers = {
   compile: require("./handlers/compile").handleCompile,
   draft: require("./handlers/draft").handleDraft,
+  list: require("./handlers/list").handleList,
   unknown: require("./handlers/unknown").handleUnknown,
   notcompatible: require("./handlers/notcompatible").handleNotCompatible
 };
@@ -31,9 +32,13 @@ var COMMAND_COMPILE = "compile";
 
 exports.COMMAND_COMPILE = COMMAND_COMPILE;
 var COMMAND_DRAFT = "draft";
-/** Unknown command. */
+/** List. */
 
 exports.COMMAND_DRAFT = COMMAND_DRAFT;
+var COMMAND_LIST = "list";
+/** Unknown command. */
+
+exports.COMMAND_LIST = COMMAND_LIST;
 var COMMAND_UNKNOWN = "unknown";
 /** Wrong formatted command. */
 
@@ -59,6 +64,9 @@ function mapCommand(req) {
 
     case "/".concat(COMMAND_DRAFT):
       return commandHandlers.draft;
+
+    case "/".concat(COMMAND_LIST):
+      return commandHandlers.list;
 
     default:
       return commandHandlers.unknown;
