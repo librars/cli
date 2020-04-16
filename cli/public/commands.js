@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.buildCommandUrl = buildCommandUrl;
 exports.addRequiredHeadersToCommandRequest = addRequiredHeadersToCommandRequest;
 exports.newCommandExecId = newCommandExecId;
-exports.COMMAND_LIST = exports.COMMAND_DRAFT = exports.COMMAND_COMPILE = void 0;
+exports.COMMAND_LIST = exports.COMMAND_DRAFT = exports.COMMAND_COMPILE = exports.COMMAND_PING = void 0;
 
 /**
  * commands.js
@@ -17,9 +17,13 @@ exports.COMMAND_LIST = exports.COMMAND_DRAFT = exports.COMMAND_COMPILE = void 0;
 var common = require("@librars/cli-common");
 
 var version = require("./version").version;
+/** Ping. */
+
+
+var COMMAND_PING = "ping";
 /** Compile. */
 
-
+exports.COMMAND_PING = COMMAND_PING;
 var COMMAND_COMPILE = "compile";
 /** Draft. */
 

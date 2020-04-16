@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.mapCommand = mapCommand;
 exports.mapErrorHandlingCommand = mapErrorHandlingCommand;
 exports.addRequiredHeadersToCommandResponse = addRequiredHeadersToCommandResponse;
-exports.COMMAND_NOTCOMPATIBLE = exports.COMMAND_WRONG_FORMAT = exports.COMMAND_UNKNOWN = exports.COMMAND_LIST = exports.COMMAND_DRAFT = exports.COMMAND_COMPILE = void 0;
+exports.COMMAND_NOTCOMPATIBLE = exports.COMMAND_WRONG_FORMAT = exports.COMMAND_UNKNOWN = exports.COMMAND_LIST = exports.COMMAND_DRAFT = exports.COMMAND_COMPILE = exports.COMMAND_PING = void 0;
 
 /**
  * commands.js
@@ -19,14 +19,19 @@ var common = require("@librars/cli-common");
 var version = require("./version").version;
 
 var commandHandlers = {
+  ping: require("./handlers/ping").handlePing,
   compile: require("./handlers/compile").handleCompile,
   draft: require("./handlers/draft").handleDraft,
   list: require("./handlers/list").handleList,
   unknown: require("./handlers/unknown").handleUnknown,
   notcompatible: require("./handlers/notcompatible").handleNotCompatible
 };
+/** Ping. */
+
+var COMMAND_PING = "ping";
 /** Compile. */
 
+exports.COMMAND_PING = COMMAND_PING;
 var COMMAND_COMPILE = "compile";
 /** Draft. */
 
@@ -59,6 +64,9 @@ exports.COMMAND_NOTCOMPATIBLE = COMMAND_NOTCOMPATIBLE;
 
 function mapCommand(req) {
   switch (req.url) {
+    case "/".concat(COMMAND_PING):
+      return commandHandlers.ping;
+
     case "/".concat(COMMAND_COMPILE):
       return commandHandlers.compile;
 

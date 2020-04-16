@@ -67,7 +67,7 @@ function draft(context) {
 exports.draft = draft;
 
 function generateDraft(context) {
-    
+    // TODO
 }
 
 function reopenWorkspace(path, wsname) {

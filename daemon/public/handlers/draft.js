@@ -164,7 +164,7 @@ function clean(draftArtifactFolder, tarPath) {
 
 function checkRequest(req) {
   if (req.method !== "POST") {
-    common.error("Command ".concat(commands.COMMAND_COMPILE, " requires a POST, received a ").concat(req.method));
+    common.error("Command ".concat(commands.COMMAND_DRAFT, " requires a POST, received a ").concat(req.method));
     return false;
   }
 
@@ -194,7 +194,7 @@ function createTar(_x, _x2) {
 function _createTar() {
   _createTar = _asyncToGenerator(function* (dirpath, dstDir) {
     var exid = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var tarFileName = "".concat(consts.COMPILE_ARTIFACTS_TAR_FILE_PREFIX, "-").concat(exid || common.generateId(true));
+    var tarFileName = "".concat(consts.DRAFT_ARTIFACTS_TAR_FILE_PREFIX, "-").concat(exid || common.generateId(true));
     var tarPath = yield common.filesystem.tarFolder(dirpath, dstDir, tarFileName);
 
     if (path.join(dstDir, "".concat(tarFileName, ".tgz")) !== tarPath) {

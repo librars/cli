@@ -17,6 +17,7 @@ const yargs = require("yargs");
 const common = require("@librars/cli-common");
 
 const commands = require("./commands");
+const ping = require("./ping").ping;
 const compile = require("./compile").compile;
 const draft = require("./draft").draft;
 const list = require("./list").list;
@@ -56,6 +57,10 @@ const exid = commands.newCommandExecId();
 common.log(`Command EXID: ${exid}`);
 
 switch (config.command) {
+    case commands.COMMAND_PING:
+        handleCommand(commands.COMMAND_PING, handleCommandPing);
+        break;
+
     case commands.COMMAND_COMPILE:
         handleCommand(commands.COMMAND_COMPILE, handleCommandCompile);
         break;
@@ -75,6 +80,16 @@ if (runTrashCleanupScheduler) {
 
 function tryCleanUpTrash() {
     // TODO
+}
+
+function handleCommandPing() {
+    // This command accepts no arguments
+
+    ping(exid, serverinfo).then(() => {
+        common.log(`Completed command ${commands.COMMAND_PING}`);
+    }).catch((e) => {
+        common.error(`Command ${commands.COMMAND_PING} encountered an error: '${e}'`);
+    });
 }
 
 function handleCommandCompile() {

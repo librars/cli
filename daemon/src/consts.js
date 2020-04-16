@@ -12,7 +12,10 @@ export const CONFIG_FILE_NAME = "daemon.config.json";
 export const TAR_FILE_PREFIX = "dmn-rcv-compile-tar";
 
 /** Prefix to use when naming the archive to send back to the client containing the compilation results. */
-export const COMPILE_ARTIFACTS_TAR_FILE_PREFIX = "dmn-result-tar";
+export const COMPILE_ARTIFACTS_TAR_FILE_PREFIX = "dmn-compile-result-tar";
+
+/** Prefix to use when naming the archive to send back to the client containing the draft resources. */
+export const DRAFT_ARTIFACTS_TAR_FILE_PREFIX = "dmn-draft-result-tar";
 
 /** Prefix to use when naming the folder hosting the archive's extracted content. */
 export const EXTRACTED_DIR_PREFIX = "dmn-rcv-extracted";

@@ -153,7 +153,7 @@ function clean(draftArtifactFolder, tarPath) {
 
 function checkRequest(req) {
     if (req.method !== "POST") {
-        common.error(`Command ${commands.COMMAND_COMPILE} requires a POST, received a ${req.method}`);
+        common.error(`Command ${commands.COMMAND_DRAFT} requires a POST, received a ${req.method}`);
         return false;
     }
 
@@ -175,7 +175,7 @@ function checkExpectedRequestBody(parsedReqBody) {
 }
 
 async function createTar(dirpath, dstDir, exid = null) {
-    const tarFileName = `${consts.COMPILE_ARTIFACTS_TAR_FILE_PREFIX}-${exid || common.generateId(true)}`;
+    const tarFileName = `${consts.DRAFT_ARTIFACTS_TAR_FILE_PREFIX}-${exid || common.generateId(true)}`;
 
     const tarPath = await common.filesystem.tarFolder(dirpath, dstDir, tarFileName);
 

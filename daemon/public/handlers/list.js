@@ -79,7 +79,7 @@ function onRequestFullyReceived(req, res, reqBody) {
 
 function checkRequest(req) {
   if (req.method !== "POST") {
-    common.error("Command ".concat(commands.COMMAND_COMPILE, " requires a POST, received a ").concat(req.method));
+    common.error("Command ".concat(commands.COMMAND_LIST, " requires a POST, received a ").concat(req.method));
     return false;
   }
 

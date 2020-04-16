@@ -10,12 +10,16 @@ const common = require("@librars/cli-common");
 const version = require("./version").version;
 
 const commandHandlers = {
+    ping: require("./handlers/ping").handlePing,
     compile: require("./handlers/compile").handleCompile,
     draft: require("./handlers/draft").handleDraft,
     list: require("./handlers/list").handleList,
     unknown: require("./handlers/unknown").handleUnknown,
     notcompatible: require("./handlers/notcompatible").handleNotCompatible
 };
+
+/** Ping. */
+export const COMMAND_PING = "ping";
 
 /** Compile. */
 export const COMMAND_COMPILE = "compile";
@@ -43,6 +47,9 @@ export const COMMAND_NOTCOMPATIBLE = "notcompatible";
  */
 export function mapCommand(req) {
     switch (req.url) {
+        case `/${COMMAND_PING}`:
+            return commandHandlers.ping;
+
         case `/${COMMAND_COMPILE}`:
             return commandHandlers.compile;
 

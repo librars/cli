@@ -19,6 +19,8 @@ var common = require("@librars/cli-common");
 
 var commands = require("./commands");
 
+var ping = require("./ping").ping;
+
 var compile = require("./compile").compile;
 
 var draft = require("./draft").draft;
@@ -59,6 +61,10 @@ var exid = commands.newCommandExecId();
 common.log("Command EXID: ".concat(exid));
 
 switch (config.command) {
+  case commands.COMMAND_PING:
+    handleCommand(commands.COMMAND_PING, handleCommandPing);
+    break;
+
   case commands.COMMAND_COMPILE:
     handleCommand(commands.COMMAND_COMPILE, handleCommandCompile);
     break;
@@ -77,6 +83,15 @@ if (runTrashCleanupScheduler) {
 }
 
 function tryCleanUpTrash() {// TODO
+}
+
+function handleCommandPing() {
+  // This command accepts no arguments
+  ping(exid, serverinfo).then(() => {
+    common.log("Completed command ".concat(commands.COMMAND_PING));
+  }).catch(e => {
+    common.error("Command ".concat(commands.COMMAND_PING, " encountered an error: '").concat(e, "'"));
+  });
 }
 
 function handleCommandCompile() {

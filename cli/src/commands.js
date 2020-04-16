@@ -9,6 +9,9 @@ const common = require("@librars/cli-common");
 
 const version = require("./version").version;
 
+/** Ping. */
+export const COMMAND_PING = "ping";
+
 /** Compile. */
 export const COMMAND_COMPILE = "compile";
 
