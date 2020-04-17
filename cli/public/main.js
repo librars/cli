@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.list = exports.draft = exports.compile = exports.ping = void 0;
+exports.configuration = exports.list = exports.draft = exports.compile = exports.ping = void 0;
 
 /**
  * main.js
@@ -18,6 +18,8 @@ var compileCommand = require("./compile");
 var draftCommand = require("./draft");
 
 var listCommand = require("./list");
+
+var config = require("./config");
 /** @see {pingCommand.ping} */
 
 
@@ -34,4 +36,14 @@ var draft = draftCommand.draft;
 
 exports.draft = draft;
 var list = listCommand.list;
+/** The configuration namespace. */
+
 exports.list = list;
+var configuration = {
+  /** @see {config.tryFetchServerInfoFromDataDir} */
+  tryFetchServerInfoFromDataDir: config.tryFetchServerInfoFromDataDir,
+
+  /** @see {config.checkServerInfo} */
+  checkServerInfo: config.checkServerInfo
+};
+exports.configuration = configuration;

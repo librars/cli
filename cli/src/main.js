@@ -8,7 +8,8 @@
 const pingCommand = require("./ping"); 
 const compileCommand = require("./compile");
 const draftCommand = require("./draft");
-const listCommand = require("./list"); 
+const listCommand = require("./list");
+const config = require("./config");
 
 /** @see {pingCommand.ping} */
 export const ping = pingCommand.ping;
@@ -21,3 +22,12 @@ export const draft = draftCommand.draft;
 
 /** @see {listCommand.list} */
 export const list = listCommand.list;
+
+
+/** The configuration namespace. */
+export const configuration = {
+    /** @see {config.tryFetchServerInfoFromDataDir} */
+    tryFetchServerInfoFromDataDir: config.tryFetchServerInfoFromDataDir,
+    /** @see {config.checkServerInfo} */
+    checkServerInfo: config.checkServerInfo,
+};

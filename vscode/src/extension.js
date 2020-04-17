@@ -8,6 +8,7 @@ const vscode = require("vscode");
 const commandCompile = require("./compile").compile;
 const commandDraft = require("./draft").draft;
 const commandHelp = require("./help").help;
+const commandTestConection = require("./testConnection").testConnection;
 
 /**
  * This method is called when your extension is activated
@@ -27,6 +28,9 @@ function activate(context) {
 		}),
 		r("new", () => {
 			commandDraft(context);
+		}),
+		r("testConnection", () => {
+			commandTestConection(context);
 		})
 	);
 }
