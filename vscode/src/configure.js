@@ -7,8 +7,6 @@ const vscode = require("vscode");
 
 const cli = require("@librars/cli");
 
-const path = require("path");
-
 /**
  * Performs the configure command.
  * 

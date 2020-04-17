@@ -6,6 +6,7 @@
 const vscode = require("vscode");
 
 const cli = require("@librars/cli");
+const common = require("@librars/cli-common");
 
 const path = require("path");
 const fs = require("fs");
@@ -45,6 +46,7 @@ function draft(context) {
                 return;
             }
 
+            // Create dir to host artifacts
             const pathToNewWSFolder = path.join(fspath, value);
             fs.mkdirSync(pathToNewWSFolder);
             if (!fs.existsSync(pathToNewWSFolder) || !fs.statSync(pathToNewWSFolder).isDirectory()) {
@@ -52,22 +54,37 @@ function draft(context) {
                 return;
             }
 
-            const onDidChangeWorkspaceFoldersListener = vscode.workspace.onDidChangeWorkspaceFolders((e) => {
-                // Reset the event
-                onDidChangeWorkspaceFoldersListener.dispose();
-
-                // Move to the next stage
-                generateDraft(context);
+            generateDraft(context, pathToNewWSFolder).then(() => {
+                vscode.window.showInformationMessage("Your new project is ready, Visual Studio Code will restart now...");
+                setTimeout(() => {
+                    reopenWorkspace(pathToNewWSFolder, value);
+                }, 2000);
+            }).catch((err) => {
+                vscode.window.showErrorMessage(`Error while drafting artifact: '${err}'`);
             });
-
-            reopenWorkspace(pathToNewWSFolder, value);
         });
     });
 }
 exports.draft = draft;
 
-function generateDraft(context) {
-    // TODO
+async function generateDraft(context, dirpath) {
+    // Fetch template list
+    const templates = await cli.list(common.generateId(false), cli.configuration.tryFetchServerInfoFromDataDir());
+    if (!templates || templates.length === 0) {
+        vscode.window.showErrorMessage("Could not retrieve the template list");
+        return;
+    }
+
+    // Ask which template
+    const chosenTemplate = await vscode.window.showQuickPick(templates, {
+        matchOnDescription: true,
+        matchOnDetail: false,
+        placeHolder: "Select the template to use",
+        ignoreFocusOut: false,
+        canPickMany: false
+    });
+
+    await cli.draft(common.generateId(false), cli.configuration.tryFetchServerInfoFromDataDir(), chosenTemplate, dirpath);
 }
 
 function reopenWorkspace(path, wsname) {
@@ -75,7 +92,7 @@ function reopenWorkspace(path, wsname) {
     const wsfolders = vscode.workspace.workspaceFolders;
     const deleteCount = !wsfolders ? 0 : wsfolders.length;
 
-    vscode.workspace.updateWorkspaceFolders(0, deleteCount, {
+    return vscode.workspace.updateWorkspaceFolders(0, deleteCount, {
         uri: uri,
         name: wsname
     });
