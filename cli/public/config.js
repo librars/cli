@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.getConfigFilePath = getConfigFilePath;
 exports.get = get;
 exports.tryFetchServerInfoFromDataDir = tryFetchServerInfoFromDataDir;
 exports.checkServerInfo = checkServerInfo;
@@ -22,6 +23,16 @@ exports.checkServerInfo = checkServerInfo;
 var common = require("@librars/cli-common");
 
 var consts = require("./consts");
+/**
+ * Gets the path to the configuration file.
+ * 
+ * @returns {string} The path to the JSON configuration. Null if the file was not found.
+ */
+
+
+function getConfigFilePath() {
+  return common.getFilePathInDataFolder(consts.CONFIG_FILE_NAME);
+}
 /**
  * Gets the configuration file content.
  * 

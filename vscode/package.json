@@ -15,7 +15,8 @@
 		"onCommand:help",
 		"onCommand:compile",
 		"onCommand:new",
-		"onCommand:testConnection"
+		"onCommand:testConnection",
+		"onCommand:configure"
 	],
 	"main": "./src/extension.js",
 	"contributes": {
@@ -35,6 +36,10 @@
 			{
 				"command": "testConnection",
 				"title": "Test connection with server"
+			},
+			{
+				"command": "configure",
+				"title": "Configure connection to server"
 			}
 		]
 	},

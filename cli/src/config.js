@@ -16,6 +16,15 @@ const common = require("@librars/cli-common");
 const consts = require("./consts");
 
 /**
+ * Gets the path to the configuration file.
+ * 
+ * @returns {string} The path to the JSON configuration. Null if the file was not found.
+ */
+export function getConfigFilePath() {
+    return common.getFilePathInDataFolder(consts.CONFIG_FILE_NAME);
+}
+
+/**
  * Gets the configuration file content.
  * 
  * @returns {object} The parsed JSON configuration. Null if the file was not found.

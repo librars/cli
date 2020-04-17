@@ -30,4 +30,6 @@ export const configuration = {
     tryFetchServerInfoFromDataDir: config.tryFetchServerInfoFromDataDir,
     /** @see {config.checkServerInfo} */
     checkServerInfo: config.checkServerInfo,
+    /** @see {config.getConfigFilePath} */
+    getConfigFilePath: config.getConfigFilePath,
 };

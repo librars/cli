@@ -44,6 +44,9 @@ var configuration = {
   tryFetchServerInfoFromDataDir: config.tryFetchServerInfoFromDataDir,
 
   /** @see {config.checkServerInfo} */
-  checkServerInfo: config.checkServerInfo
+  checkServerInfo: config.checkServerInfo,
+
+  /** @see {config.getConfigFilePath} */
+  getConfigFilePath: config.getConfigFilePath
 };
 exports.configuration = configuration;

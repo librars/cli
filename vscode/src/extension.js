@@ -9,6 +9,7 @@ const commandCompile = require("./compile").compile;
 const commandDraft = require("./draft").draft;
 const commandHelp = require("./help").help;
 const commandTestConection = require("./testConnection").testConnection;
+const commandConfigure = require("./configure").configure;
 
 /**
  * This method is called when your extension is activated
@@ -31,6 +32,9 @@ function activate(context) {
 		}),
 		r("testConnection", () => {
 			commandTestConection(context);
+		}),
+		r("configure", () => {
+			commandConfigure(context);
 		})
 	);
 }

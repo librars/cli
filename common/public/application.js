@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.getDataFolder = getDataFolder;
+exports.getFilePathInDataFolder = getFilePathInDataFolder;
 exports.getContentFromFileInDataFolder = getContentFromFileInDataFolder;
 exports.ensureDataDir = ensureDataDir;
 exports.DIR_NAME = void 0;
@@ -41,6 +42,24 @@ function getDataFolder() {
   return path.normalize(dataDir);
 }
 /**
+ * Gets the path to a file located inside the application data dir.
+ * 
+ * @param {string} filename The name (extension included) of the file to look for.
+ * @returns {string} The path to that file. Null if the file does not exist.
+ */
+
+
+function getFilePathInDataFolder(filename) {
+  var dataDir = getDataFolder();
+  var dir = path.join(dataDir, DIR_NAME);
+
+  if (!fs.existsSync(dir)) {
+    return null;
+  }
+
+  return path.join(dir, filename);
+}
+/**
  * Gets the content of a file located inside the application data dir.
  * 
  * @param {string} filename The name (extension included) of the file to look for.
@@ -49,20 +68,15 @@ function getDataFolder() {
 
 
 function getContentFromFileInDataFolder(filename) {
-  var dataDir = getDataFolder();
-  var dir = path.join(dataDir, DIR_NAME);
+  var filePath = getFilePathInDataFolder(filename);
 
-  if (fs.existsSync(dir)) {
-    var filePath = path.join(dir, filename);
+  if (filePath && fs.existsSync(filePath)) {
+    var content = fs.readFileSync(filePath, {
+      encoding: "utf-8"
+    });
 
-    if (fs.existsSync(filePath)) {
-      var content = fs.readFileSync(filePath, {
-        encoding: "utf-8"
-      });
-
-      if (content) {
-        return content;
-      }
+    if (content) {
+      return content;
     }
   }
 
