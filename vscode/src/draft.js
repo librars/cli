@@ -54,11 +54,17 @@ function draft(context) {
                 return;
             }
 
-            generateDraft(context, pathToNewWSFolder).then(() => {
+            generateDraft(context, pathToNewWSFolder).then((artifactsFolder) => {
+                // Move artifacts two levels up and remove the (then empty) container folder
+                // Structure is: project-folder/librars-job-folder/template-folder
+                common.filesystem.moveFiles(artifactsFolder, path.normalize(path.join(artifactsFolder, "..", "..")));
+                // The librars-job-folder will not be deleted by the previous command
+                common.filesystem.deleteDirectory(path.normalize(path.join(artifactsFolder, "..")));
+
                 vscode.window.showInformationMessage("Your new project is ready, Visual Studio Code will restart now...");
                 setTimeout(() => {
                     reopenWorkspace(pathToNewWSFolder, value);
-                }, 2000);
+                }, 2*1000);
             }).catch((err) => {
                 vscode.window.showErrorMessage(`Error while drafting artifact: '${err}'`);
             });
@@ -84,7 +90,7 @@ async function generateDraft(context, dirpath) {
         canPickMany: false
     });
 
-    await cli.draft(common.generateId(false), cli.configuration.tryFetchServerInfoFromDataDir(), chosenTemplate, dirpath);
+    return await cli.draft(common.generateId(false), cli.configuration.tryFetchServerInfoFromDataDir(), chosenTemplate, dirpath);
 }
 
 function reopenWorkspace(path, wsname) {

@@ -114,6 +114,9 @@ var filesystem = {
   /** @see {filesystemIo.deleteDirectory} */
   deleteDirectory: filesystemIo.deleteDirectory,
 
+  /** @see {filesystemIo.moveFiles} */
+  moveFiles: filesystemIo.moveFiles,
+
   /** @see {filesystemIo.ensureDirectory} */
   ensureDirectory: filesystemIo.ensureDirectory
 };

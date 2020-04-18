@@ -137,9 +137,10 @@ function _draft() {
 
             if (cleanAfter) {
               clean(resultTarPath);
-            }
+            } // Return the path to where the artifacts have been placed
 
-            resolve(); // Resolve only when receiving the response
+
+            resolve(extractedDirPath); // Resolve only when receiving the response
           }).catch(err => {
             common.error("An error occurred while extracting received content '".concat(resultTarPath, "' from server: ").concat(err));
 

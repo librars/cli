@@ -120,7 +120,8 @@ export async function draft(exid, serverinfo, templateName, dirpath, cleanAfter 
                         clean(resultTarPath);
                     }
 
-                    resolve(); // Resolve only when receiving the response
+                    // Return the path to where the artifacts have been placed
+                    resolve(extractedDirPath); // Resolve only when receiving the response
                 }).catch((err) => {
                     common.error(`An error occurred while extracting received content '${resultTarPath}' from server: ${err}`);
 
