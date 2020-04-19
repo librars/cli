@@ -117,6 +117,9 @@ var filesystem = {
   /** @see {filesystemIo.moveFiles} */
   moveFiles: filesystemIo.moveFiles,
 
+  /** @see {filesystemIo.copyFiles} */
+  copyFiles: filesystemIo.copyFiles,
+
   /** @see {filesystemIo.ensureDirectory} */
   ensureDirectory: filesystemIo.ensureDirectory
 };

@@ -53,7 +53,7 @@ export function deleteDirectory(dirpath) {
  * Safely moves files from a direcory into another.
  * 
  * @param {string} dirpath Path to the directory whose content to move.
- * @param {string} dstdirpath Path to the destination directory.
+ * @param {string} dstdirpath Path to the destination directory (must exist).
  * @param {boolean} rmdir Whether to remove the source (empty) dir structure at the end.
  */
 export function moveFiles(srcdirpath, dstdirpath, rmdir = true) {
@@ -84,6 +84,45 @@ export function moveFiles(srcdirpath, dstdirpath, rmdir = true) {
     };
 
     moveFolderRecursive(srcdirpath, dstdirpath, rmdir);
+}
+
+/**
+ * Safely copies files from a direcory into another.
+ * 
+ * @param {string} dirpath Path to the directory whose content to move.
+ * @param {string} dstdirpath Path to the destination directory (must exist).
+ * @param {(string) => boolean} A function to whitelist files. 
+ */
+export function copyFiles(srcdirpath, dstdirpath, cond) {
+    if (!fs.existsSync(srcdirpath) || !fs.statSync(srcdirpath).isDirectory()) {
+        return;
+    }
+    if (!fs.existsSync(dstdirpath) || !fs.statSync(dstdirpath).isDirectory()) {
+        throw new Error(`Destination folder ${dstdirpath} does not exist or not a directory`);
+    }
+    if (!cond) {
+        cond = (f) => true;
+    }
+
+    // Depth first recursive copy
+    const copyFolderRecursive = (d, nd) => {
+        if (fs.existsSync(d)) {
+            fs.readdirSync(d).forEach((file, index) => {
+                const curPath = path.join(d, file);
+                if (cond(curPath)) { // Only if whitelisted
+                    const npath = path.join(nd, path.basename(curPath));
+                    if (fs.lstatSync(curPath).isDirectory()) {
+                        fs.mkdirSync(npath);
+                        copyFolderRecursive(curPath, npath);
+                    } else {
+                        fs.copyFileSync(curPath, npath, fs.constants.COPYFILE_EXCL); // Copy each file one by one
+                    }
+                }
+            });
+        }
+    };
+
+    copyFolderRecursive(srcdirpath, dstdirpath);
 }
 
 /**

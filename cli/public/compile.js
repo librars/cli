@@ -50,11 +50,11 @@ function _compile() {
     var cleanAfter = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
     if (!serverinfo) {
-      throw new Error("Argument serverinfo canot be null or undefined");
+      throw new Error("Argument serverinfo cannot be null or undefined");
     }
 
     if (!dirpath) {
-      throw new Error("Argument dirpath canot be null or undefined");
+      throw new Error("Argument dirpath cannot be null or undefined");
     }
 
     if (!fs.existsSync(dirpath)) {
@@ -135,9 +135,10 @@ function _compile() {
 
             if (cleanAfter) {
               clean(tarPath, resultTarPath);
-            }
+            } // Return the location of the compiled artifacts
 
-            resolve(); // Resolve only when receiving the response
+
+            resolve(extractedDirPath); // Resolve only when receiving the response
           }).catch(err => {
             common.error("An error occurred while extracting received content '".concat(resultTarPath, "' from server: ").concat(err));
 

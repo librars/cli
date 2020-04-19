@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.deleteFile = deleteFile;
 exports.deleteDirectory = deleteDirectory;
 exports.moveFiles = moveFiles;
+exports.copyFiles = copyFiles;
 exports.ensureDirectory = ensureDirectory;
 
 /**
@@ -65,7 +66,7 @@ function deleteDirectory(dirpath) {
  * Safely moves files from a direcory into another.
  * 
  * @param {string} dirpath Path to the directory whose content to move.
- * @param {string} dstdirpath Path to the destination directory.
+ * @param {string} dstdirpath Path to the destination directory (must exist).
  * @param {boolean} rmdir Whether to remove the source (empty) dir structure at the end.
  */
 
@@ -103,6 +104,51 @@ function moveFiles(srcdirpath, dstdirpath) {
   };
 
   moveFolderRecursive(srcdirpath, dstdirpath, rmdir);
+}
+/**
+ * Safely copies files from a direcory into another.
+ * 
+ * @param {string} dirpath Path to the directory whose content to move.
+ * @param {string} dstdirpath Path to the destination directory (must exist).
+ * @param {(string) => boolean} A function to whitelist files. 
+ */
+
+
+function copyFiles(srcdirpath, dstdirpath, cond) {
+  if (!fs.existsSync(srcdirpath) || !fs.statSync(srcdirpath).isDirectory()) {
+    return;
+  }
+
+  if (!fs.existsSync(dstdirpath) || !fs.statSync(dstdirpath).isDirectory()) {
+    throw new Error("Destination folder ".concat(dstdirpath, " does not exist or not a directory"));
+  }
+
+  if (!cond) {
+    cond = f => true;
+  } // Depth first recursive copy
+
+
+  var copyFolderRecursive = (d, nd) => {
+    if (fs.existsSync(d)) {
+      fs.readdirSync(d).forEach((file, index) => {
+        var curPath = path.join(d, file);
+
+        if (cond(curPath)) {
+          // Only if whitelisted
+          var npath = path.join(nd, path.basename(curPath));
+
+          if (fs.lstatSync(curPath).isDirectory()) {
+            fs.mkdirSync(npath);
+            copyFolderRecursive(curPath, npath);
+          } else {
+            fs.copyFileSync(curPath, npath, fs.constants.COPYFILE_EXCL); // Copy each file one by one
+          }
+        }
+      });
+    }
+  };
+
+  copyFolderRecursive(srcdirpath, dstdirpath);
 }
 /**
  * Makes sure a directory is created. If already present, nothing happens.

@@ -29,10 +29,10 @@ const moveToTrash = true; // If false, it will permanently delete intermediate r
  */
 export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
     if (!serverinfo) {
-        throw new Error("Argument serverinfo canot be null or undefined");
+        throw new Error("Argument serverinfo cannot be null or undefined");
     }
     if (!dirpath) {
-        throw new Error("Argument dirpath canot be null or undefined");
+        throw new Error("Argument dirpath cannot be null or undefined");
     }
 
     if (!fs.existsSync(dirpath)) {
@@ -122,7 +122,8 @@ export async function compile(exid, serverinfo, dirpath, cleanAfter = true) {
                         clean(tarPath, resultTarPath);
                     }
 
-                    resolve(); // Resolve only when receiving the response
+                    // Return the location of the compiled artifacts
+                    resolve(extractedDirPath); // Resolve only when receiving the response
                 }).catch((err) => {
                     common.error(`An error occurred while extracting received content '${resultTarPath}' from server: ${err}`);
 
